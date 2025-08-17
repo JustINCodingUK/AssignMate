@@ -1,0 +1,7 @@
+deck.start
+INSTALL jetbrains.idea-community@2025.1.1
+
+STEP BEGIN flutter-setup
+INSTALL google.flutter@3.32.5
+RUN "flutter pub get" IN rootProject
+STEP END

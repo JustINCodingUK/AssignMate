@@ -1,0 +1,6 @@
+deck.start
+STEP BEGIN ci
+INSTALL google.flutter@3.32.5
+CLONE JustINCodingUK/assignmate IN $home
+RUN "flutter build apk" IN $home/assignmate
+STEP END

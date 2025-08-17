@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "731983346773",
+    "project_id": "assignmate-29d27",
+    "storage_bucket": "assignmate-29d27.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731983346773:android:d5b694d210959c1030e8dc",
+        "android_client_info": {
+          "package_name": "io.github.justincodinguk.assignmate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "731983346773-lab3qa0kfna3gkj7ffrcdohdikpsphfg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXAvcCWPSo_-o_qgj7Z4f4JMggp6DMwd0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "731983346773-lab3qa0kfna3gkj7ffrcdohdikpsphfg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "731983346773-2dr474ara81edk28neh4fob3v6gketfo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.github.justincodinguk.assignmate"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
