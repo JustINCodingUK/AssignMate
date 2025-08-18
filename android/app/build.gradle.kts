@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -6,6 +8,10 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val keyProperties = Properties().apply {
+    rootProject.file("key.properties").inputStream.use { load(it) }
 }
 
 android {
@@ -34,10 +40,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("SIGNING_STORE_FILE") ?: "keystore.jks")
-            storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: "defaultStorePassword"
-            keyAlias = System.getenv("SIGNING_KEY_ALIAS") ?: "defaultAlias"
-            keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: "defaultKeyPassword"
+            storeFile = file(keyProperties["storeFile"])
+            storePassword = keyProperties["storePassword"]
+            keyAlias = keyProperties["keyAlias"]
+            keyPassword = keyProperties["keyPassword"]
         }
     }
 
