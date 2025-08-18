@@ -32,38 +32,28 @@ android {
         versionName = flutter.versionName
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getenv("SIGNING_STORE_FILE") ?: "keystore.jks")
+            storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: "defaultStorePassword"
+            keyAlias = System.getenv("SIGNING_KEY_ALIAS") ?: "defaultAlias"
+            keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: "defaultKeyPassword"
         }
     }
 
-    android {
-        signingConfigs {
-            create("release") {
-                storeFile = file(System.getenv("SIGNING_STORE_FILE") ?: "keystore.jks")
-                storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: "defaultStorePassword"
-                keyAlias = System.getenv("SIGNING_KEY_ALIAS") ?: "defaultAlias"
-                keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: "defaultKeyPassword"
-            }
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
 
-        buildTypes {
-            getByName("release") {
-                isMinifyEnabled = true
-                signingConfig = signingConfigs.getByName("release")
-                proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-                )
-            }
-
-            getByName("debug") {
-                // Debug stays unsigned or with debug key
-                isDebuggable = true
-            }
+        getByName("debug") {
+            // Debug stays unsigned or with debug key
+            isDebuggable = true
         }
     }
 }
