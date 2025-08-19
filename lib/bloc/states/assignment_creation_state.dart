@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import '../../model/assignment.dart';
+
 abstract interface class AssignmentCreationState {
   final List<File> attachments;
 
