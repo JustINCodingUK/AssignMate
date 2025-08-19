@@ -56,45 +56,7 @@ class AttachmentsList extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ).pad(16),
                 showControls
-                    ? Row(
-                        children: [
-                          IconButton(
-                            onPressed: () async {
-                              final fileResult = await FilePicker.platform
-                                  .pickFiles();
-                              if (fileResult != null &&
-                                  fileResult.files.isNotEmpty) {
-                                if (context.mounted) {
-                                  context.read<AssignmentCreationBloc>().add(
-                                    FileUploadEvent(
-                                      files: fileResult.files
-                                          .map((e) => File(e.path!))
-                                          .toList(),
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                            icon: Icon(Icons.add),
-                          ),
-
-                          IconButton(
-                            onPressed: () async {
-                              final uri = await AudioRecorderSheet.show(
-                                context,
-                              );
-                              if (uri != null) {
-                                if (context.mounted) {
-                                  context.read<AssignmentCreationBloc>().add(
-                                    AddRecordingEvent(uri: Uri.parse(uri)),
-                                  );
-                                }
-                              }
-                            },
-                            icon: Icon(Icons.mic),
-                          ),
-                        ],
-                      )
+                    ? createControls(context)
                     : Container(),
               ],
             ),
@@ -128,6 +90,48 @@ class AttachmentsList extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Widget createControls(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () async {
+            final fileResult = await FilePicker.platform
+                .pickFiles();
+            if (fileResult != null &&
+                fileResult.files.isNotEmpty) {
+              if (context.mounted) {
+                context.read<AssignmentCreationBloc>().add(
+                  FileUploadEvent(
+                    files: fileResult.files
+                        .map((e) => File(e.path!))
+                        .toList(),
+                  ),
+                );
+              }
+            }
+          },
+          icon: Icon(Icons.add),
+        ),
+
+        IconButton(
+          onPressed: () async {
+            final uri = await AudioRecorderSheet.show(
+              context,
+            );
+            if (uri != null) {
+              if (context.mounted) {
+                context.read<AssignmentCreationBloc>().add(
+                  AddRecordingEvent(uri: Uri.parse(uri)),
+                );
+              }
+            }
+          },
+          icon: Icon(Icons.mic),
+        ),
+      ],
     );
   }
 }

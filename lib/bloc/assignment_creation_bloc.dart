@@ -20,9 +20,10 @@ class AssignmentCreationBloc
   late final AssignmentsRepository _assignmentsRepository;
 
   final _attachments = <File>[];
+  final List<String> _subjects;
   Uri? _recording;
 
-  AssignmentCreationBloc(super.initialState, this._driveClient) {
+  AssignmentCreationBloc(super.initialState, this._driveClient, this._subjects) {
     _attachmentRepository = AttachmentRepository(
       _firestoreAttachmentClient,
       _driveClient,
@@ -34,24 +35,24 @@ class AssignmentCreationBloc
 
     on<FileUploadEvent>((event, emit) {
       _attachments.addAll(event.files);
-      emit(AssignmentCreationBaseState(["EC101"], _attachments, _recording));
+      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
     });
 
     on<FileDeleteEvent>((event, emit) {
       _attachments.remove(event.file);
-      emit(AssignmentCreationBaseState(["EC101"], _attachments, _recording));
+      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
     });
 
     on<AddRecordingEvent>((event, emit) {
       _recording = event.uri;
       _attachments.add(File(event.uri.path));
-      emit(AssignmentCreationBaseState(["EC101"], _attachments, _recording));
+      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
     });
 
     on<RemoveRecordingEvent>((event, emit) {
       _recording = null;
       _attachments.removeWhere((element) => element.path == _recording?.path);
-      emit(AssignmentCreationBaseState(["EC101"], _attachments, _recording));
+      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
     });
 
     on<CreateAssignmentEvent>((event, emit) async {
@@ -73,6 +74,11 @@ class AssignmentCreationBloc
       );
 
       emit(AssignmentCreatedState(assignment, _attachments));
+    });
+
+    on<EditAssignmentEvent>((event, emit) async {
+      emit(AssignmentEditPendingState(_attachments));
+
     });
   }
 }

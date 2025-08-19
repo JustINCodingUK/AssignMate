@@ -30,8 +30,9 @@ final router = GoRouter(
               null,
             ),
             context.read<AuthBloc>().googleApiClient,
+            ["EC101", "CO101", "CS103", "ME105", "AM101"],
           ),
-          child: AssignmentCreationRoute(),
+          child: AssignmentCreationRoute(isEditMode: false),
         );
       },
     ),
