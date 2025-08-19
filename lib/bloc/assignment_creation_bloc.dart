@@ -4,11 +4,7 @@ import 'package:assignmate/bloc/states/assignment_creation_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/assignment_repository.dart';
-import '../data/attachment_repository.dart';
 import '../model/assignment.dart';
-import '../model/attachment.dart';
-import '../network/firestore_client.dart';
-import '../network/google_api_client.dart';
 import 'events/assignment_creation_event.dart';
 
 class AssignmentCreationBloc
