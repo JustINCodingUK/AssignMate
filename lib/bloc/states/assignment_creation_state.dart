@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:assignmate/model/attachment.dart';
-
 import '../../model/assignment.dart';
 
 abstract interface class AssignmentCreationState {
@@ -25,6 +23,13 @@ class AssignmentInCreationState implements AssignmentCreationState {
   final List<File> attachments;
 
   AssignmentInCreationState(this.attachments);
+}
+
+class AssignmentEditPendingState implements AssignmentCreationState {
+  @override
+  final List<File> attachments;
+
+  AssignmentEditPendingState(this.attachments);
 }
 
 class AssignmentCreatedState implements AssignmentCreationState {
