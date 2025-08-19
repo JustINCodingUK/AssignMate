@@ -1,6 +1,5 @@
 import 'package:assignmate/bloc/assignment_creation_bloc.dart';
 import 'package:assignmate/bloc/assignment_details_bloc.dart';
-import 'package:assignmate/bloc/auth_bloc.dart';
 import 'package:assignmate/bloc/events/assignment_details_event.dart';
 import 'package:assignmate/bloc/states/assignment_creation_state.dart';
 import 'package:assignmate/data/assignment_repository.dart';
@@ -29,9 +28,10 @@ final router = GoRouter(
               [],
               null,
             ),
-            context.read<AuthBloc>().googleApiClient,
+            ["EC101", "CO101", "CS103", "ME105", "AM101"],
+            context.read<AssignmentsRepository>()
           ),
-          child: AssignmentCreationRoute(),
+          child: AssignmentCreationRoute(isEditMode: false),
         );
       },
     ),

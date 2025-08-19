@@ -2,6 +2,7 @@ import 'package:assignmate/bloc/assignment_creation_bloc.dart';
 import 'package:assignmate/bloc/events/assignment_creation_event.dart';
 import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/ext/pad.dart';
+import 'package:assignmate/model/assignment.dart';
 import 'package:assignmate/ui/attachments_list.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/states/assignment_creation_state.dart';
 
 class AssignmentCreationRoute extends StatefulWidget {
-  const AssignmentCreationRoute({super.key});
+
+  final bool isEditMode;
+  final Assignment? assignment;
+
+  const AssignmentCreationRoute({super.key, required this.isEditMode, this.assignment});
 
   @override
   State<AssignmentCreationRoute> createState() =>
@@ -22,11 +27,20 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
   final _dueDateController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _subjectController = TextEditingController();
+
   DateTime? _dueDate;
   bool _isPlaying = false;
 
   @override
   Widget build(BuildContext context) {
+
+    if(widget.isEditMode) {
+      _titleController.text = widget.assignment!.title;
+      _dueDateController.text = widget.assignment!.dueDate.date();
+      _descriptionController.text = widget.assignment!.description;
+      _subjectController.text = widget.assignment!.subject;
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text("AssignMate")),
       body: BlocConsumer<AssignmentCreationBloc, AssignmentCreationState>(
@@ -43,7 +57,7 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Create Assignment",
+                  widget.isEditMode ? "Edit Assignment" : "Create Assignment",
                   style: Theme
                       .of(context)
                       .textTheme
