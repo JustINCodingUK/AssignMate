@@ -1,0 +1,47 @@
+name: Flutter Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.5' # pin your version if needed
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Create key.jks from base64 (stored in GH secrets)
+      - name: Decode Keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
+
+      # Write key.properties (also from secrets)
+      - name: Create key.properties
+        run: |
+          cat <<EOF > android/key.properties
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=release-key.jks
+          EOF
+
+      - name: Build Release APK
+        run: flutter build apk --release
