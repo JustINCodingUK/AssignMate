@@ -43,5 +43,5 @@ jobs:
           storeFile=release-key.jks
           EOF
 
-      - name: Build Release APK
-        run: flutter build apk --release
+      - name: Build debug APK
+        run: flutter build apk --debug
