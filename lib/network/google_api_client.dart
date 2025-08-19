@@ -30,16 +30,8 @@ class GoogleApiClient {
         final authorization = await user.authorizationClient.authorizeScopes(
           _scopes,
         );
-        if (authorization == null) {
-          log("NULL NUKK");
-        } else {
-          log("Not null");
-        }
-        final driveClient = authorization?.authClient(scopes: _scopes);
-        if (driveClient == null) {
-          log("DRIVE NULL");
-        }
-        _driveApi = drive.DriveApi(driveClient!);
+        final driveClient = authorization.authClient(scopes: _scopes);
+        _driveApi = drive.DriveApi(driveClient);
       }
       return Success(
         firebaseAuth.currentUser!.email!,
@@ -80,8 +72,6 @@ class GoogleApiClient {
     final driveClient = authorization?.authClient(scopes: _scopes);
     _driveApi = drive.DriveApi(driveClient!);
 
-    log("DRive API ${_driveApi}");
-
     if (authResult.user == null) {
       return GenericFailure();
     } else {
@@ -100,7 +90,6 @@ class GoogleApiClient {
     required Uint8List data,
   }) async {
     final rootAppFolder = await _getFolderID("AssignMate");
-    print("HELLO");
     final _assignmentFolder = await getOrCreateFolder(
       parentFolder,
       rootAppFolder,
