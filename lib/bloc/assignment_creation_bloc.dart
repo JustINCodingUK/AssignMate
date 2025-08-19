@@ -13,25 +13,14 @@ import 'events/assignment_creation_event.dart';
 
 class AssignmentCreationBloc
     extends Bloc<AssignmentCreationEvent, AssignmentCreationState> {
-  final GoogleApiClient _driveClient;
-  final _firestoreAssignmentClient = FirestoreClient<Assignment>();
-  final _firestoreAttachmentClient = FirestoreClient<Attachment>();
-  late final AttachmentRepository _attachmentRepository;
-  late final AssignmentsRepository _assignmentsRepository;
+
+  final AssignmentsRepository _assignmentsRepository;
 
   final _attachments = <File>[];
   final List<String> _subjects;
   Uri? _recording;
 
-  AssignmentCreationBloc(super.initialState, this._driveClient, this._subjects) {
-    _attachmentRepository = AttachmentRepository(
-      _firestoreAttachmentClient,
-      _driveClient,
-    );
-    _assignmentsRepository = AssignmentsRepository(
-      _firestoreAssignmentClient,
-      _attachmentRepository,
-    );
+  AssignmentCreationBloc(super.initialState, this._subjects, this._assignmentsRepository) {
 
     on<FileUploadEvent>((event, emit) {
       _attachments.addAll(event.files);
