@@ -1,5 +1,4 @@
 import 'package:assignmate/db/entity/attachment_entity.dart';
-import 'package:assignmate/model/attachment.dart';
 import 'package:floor/floor.dart';
 
 @dao
