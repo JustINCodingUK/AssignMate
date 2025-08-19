@@ -27,6 +27,13 @@ class AssignmentInCreationState implements AssignmentCreationState {
   AssignmentInCreationState(this.attachments);
 }
 
+class AssignmentEditPendingState implements AssignmentCreationState {
+  @override
+  final List<File> attachments;
+
+  AssignmentEditPendingState(this.attachments);
+}
+
 class AssignmentCreatedState implements AssignmentCreationState {
   final Assignment assignment;
   @override
