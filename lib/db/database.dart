@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:concurrent';
+import 'package:mutex/mutex.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 import 'package:floor/floor.dart';
@@ -13,8 +13,9 @@ part 'database.g.dart';
 
 @Database(version: 1, entities: [AssignmentEntity, AttachmentEntity])
 abstract class AppDatabase extends FloorDatabase {
-  
+
   AssignmentDao get assignmentDao;
+
   AttachmentDao get attachmentDao;
 
 }
@@ -22,11 +23,10 @@ abstract class AppDatabase extends FloorDatabase {
 AppDatabase? _instance;
 final _mutex = Mutex();
 
-Future<AppDatabase> getDatabase() {
-  final db = _mutex.runLocked(() async {
+Future<AppDatabase> getDatabase() async {
+  final db = await _mutex.protect(() async {
     _instance ??= await $FloorAppDatabase.databaseBuilder("app.db").build();
     return _instance!;
   });
-  
   return db;
 }
