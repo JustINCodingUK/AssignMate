@@ -6,6 +6,7 @@ import 'package:assignmate/db/database.dart';
 import 'package:assignmate/firebase_options.dart';
 import 'package:assignmate/nav.dart';
 import 'package:assignmate/network/firestore_client.dart';
+import 'package:assignmate/notifications/fcm_notifications.dart';
 import 'package:assignmate/theme/theme.dart';
 import 'package:assignmate/theme/util.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,17 +17,29 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final appDb = await getDatabase();
-  runApp(AssignmateApplication(appDb));
+  final notificationManager = FCMNotificationManager()
+    ..registerBackgroundCallback();
+
+  runApp(
+    AssignmateApplication(db: appDb, notificationManager: notificationManager),
+  );
 }
 
 class AssignmateApplication extends StatelessWidget {
-
   final AppDatabase db;
+  final FCMNotificationManager notificationManager;
 
-  const AssignmateApplication(this.db, {super.key});
+  const AssignmateApplication({
+    super.key,
+    required this.db,
+    required this.notificationManager,
+  });
 
   @override
   Widget build(BuildContext context) {
+
+    notificationManager.registerForegroundCallback(context);
+
     final brightness = View.of(context).platformDispatcher.platformBrightness;
     final textTheme = createTextTheme(context, "Nunito", "Montserrat");
     final theme = MaterialTheme(textTheme);
@@ -40,7 +53,7 @@ class AssignmateApplication extends StatelessWidget {
             FirestoreClient(),
             context.read<AuthBloc>().googleApiClient,
           ),
-          db
+          db,
         ),
         child: MaterialApp.router(
           theme: brightness == Brightness.light ? theme.light() : theme.dark(),
