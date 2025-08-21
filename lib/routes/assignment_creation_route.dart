@@ -2,9 +2,8 @@ import 'package:assignmate/bloc/assignment_creation_bloc.dart';
 import 'package:assignmate/bloc/events/assignment_creation_event.dart';
 import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/ext/pad.dart';
-import 'package:assignmate/model/assignment.dart';
 import 'package:assignmate/ui/attachments_list.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:assignmate/ui/media_player_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,9 +12,10 @@ import '../bloc/states/assignment_creation_state.dart';
 class AssignmentCreationRoute extends StatefulWidget {
 
   final bool isEditMode;
-  final Assignment? assignment;
+  final String? oldAssignmentId;
 
-  const AssignmentCreationRoute({super.key, required this.isEditMode, this.assignment});
+  const AssignmentCreationRoute(
+      {super.key, required this.isEditMode, this.oldAssignmentId});
 
   @override
   State<AssignmentCreationRoute> createState() =>
@@ -29,29 +29,28 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
   final _subjectController = TextEditingController();
 
   DateTime? _dueDate;
-  bool _isPlaying = false;
 
   @override
   Widget build(BuildContext context) {
-
-    if(widget.isEditMode) {
-      _titleController.text = widget.assignment!.title;
-      _dueDateController.text = widget.assignment!.dueDate.date();
-      _descriptionController.text = widget.assignment!.description;
-      _subjectController.text = widget.assignment!.subject;
-    }
-
     return Scaffold(
       appBar: AppBar(title: Text("AssignMate")),
-      body: BlocConsumer<AssignmentCreationBloc, AssignmentCreationState>(
+      body: BlocConsumer<AssignmentCreationBloc, AssignmentScreenState>(
         buildWhen: (previous, current) {
-          return current is AssignmentCreationBaseState;
+          return current is AssignmentCreationInitialState ||
+              current is AssignmentEditStartedState;
         },
         listenWhen: (previous, current) {
           return current is AssignmentInCreationState ||
               current is AssignmentCreatedState;
         },
         builder: (context, state) {
+          if (state is AssignmentEditStartedState) {
+            _titleController.text = state.oldAssignment.title;
+            _descriptionController.text = state.oldAssignment.description;
+            _dueDateController.text = state.oldAssignment.dueDate.date();
+            _subjectController.text = state.oldAssignment.subject;
+          }
+
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +66,7 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
                 Divider(thickness: 2).padSymmetric(vertical: 16, horizontal: 8),
 
                 DropdownMenu(
-                  dropdownMenuEntries: (state as AssignmentCreationBaseState)
+                  dropdownMenuEntries: (state as AssignmentCreationInitialState)
                       .availableSubjects
                       .map((it) => DropdownMenuEntry(value: it, label: it))
                       .toList(),
@@ -136,53 +135,8 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
                 ).padSymmetric(horizontal: 16, vertical: 8),
 
                 state.audioRecording != null
-                    ? Card(
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            final player = AudioPlayer();
-                            if (_isPlaying) {
-                              await player.stop();
-                              setState(() {
-                                _isPlaying = false;
-                              });
-                            } else {
-                              await player.play(
-                                UrlSource(state.audioRecording!.path),
-                              );
-                              setState(() {
-                                _isPlaying = true;
-                              });
-                            }
-                          },
-                          icon: _isPlaying
-                              ? Icon(Icons.pause)
-                              : Icon(Icons.play_arrow),
-                        ),
-                        Expanded(
-                          child: Text(
-                            "A word of advice from the CR",
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            context.read<AssignmentCreationBloc>().add(
-                              RemoveRecordingEvent(),
-                            );
-                          },
-                          icon: Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                    ? MediaPlayerCard(
+                    source: state.audioRecording!, isRemovable: true)
                     : Container(),
 
                 AttachmentsList(showControls: true).pad(16),
@@ -193,16 +147,29 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
                     TextButton(onPressed: () {}, child: Text("Cancel")).pad(16),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<AssignmentCreationBloc>().add(
-                            CreateAssignmentEvent(
-                                title: _titleController.text,
-                                subject: _subjectController.text,
-                                description: _descriptionController.text,
-                                dueDate: _dueDate!
-                            )
-                        );
+                        if (widget.isEditMode) {
+                          context.read<AssignmentCreationBloc>().add(
+                              EditAssignmentEvent(
+                                  oldAssignmentId: widget.oldAssignmentId!,
+                                  title: _titleController.text,
+                                  subject: _subjectController.text,
+                                  description: _descriptionController.text,
+                                  dueDate: _dueDate!,
+                                  attachments: state.attachments
+                              )
+                          );
+                        } else {
+                          context.read<AssignmentCreationBloc>().add(
+                              CreateAssignmentEvent(
+                                  title: _titleController.text,
+                                  subject: _subjectController.text,
+                                  description: _descriptionController.text,
+                                  dueDate: _dueDate!
+                              )
+                          );
+                        }
                       },
-                      child: Text("Create"),
+                      child: Text(widget.isEditMode ? "Edit" : "Create"),
                     ).pad(16),
                   ],
                 ),
@@ -217,14 +184,17 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
               barrierDismissible: false,
               builder: (context) {
                 return AlertDialog(
-                  title: Text("Creating Assignment"),
+                  title: Text(widget.isEditMode
+                      ? "Editing Assignment"
+                      : "Creating Assignment"),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: 16),
                       Text(
-                          "Please wait while your assignment is being created."),
+                          "Please wait while your assignment is being ${widget
+                              .isEditMode ? "edited" : "created"}."),
                     ],
                   ),
                 );
@@ -236,9 +206,12 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  title: Text("Assignment Created"),
+                  title: Text(
+                      "Assignment ${widget.isEditMode ? "Edited" : "Created"}"),
                   content: Text("Assignment '${state.assignment
-                      .title}' was created successfully!"),
+                      .title}' was ${widget.isEditMode
+                      ? "edited"
+                      : "created"} successfully!"),
                   actions: [
                     TextButton(
                       onPressed: () {
