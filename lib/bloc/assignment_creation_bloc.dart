@@ -12,7 +12,7 @@ import '../network/google_api_client.dart';
 import 'events/assignment_creation_event.dart';
 
 class AssignmentCreationBloc
-    extends Bloc<AssignmentCreationEvent, AssignmentCreationState> {
+    extends Bloc<AssignmentCreationEvent, AssignmentScreenState> {
   final GoogleApiClient _driveClient;
   final _firestoreAssignmentClient = FirestoreClient<Assignment>();
   final _firestoreAttachmentClient = FirestoreClient<Attachment>();
@@ -23,7 +23,11 @@ class AssignmentCreationBloc
   final List<String> _subjects;
   Uri? _recording;
 
-  AssignmentCreationBloc(super.initialState, this._driveClient, this._subjects) {
+  AssignmentCreationBloc(
+    super.initialState,
+    this._driveClient,
+    this._subjects,
+  ) {
     _attachmentRepository = AttachmentRepository(
       _firestoreAttachmentClient,
       _driveClient,
@@ -35,24 +39,48 @@ class AssignmentCreationBloc
 
     on<FileUploadEvent>((event, emit) {
       _attachments.addAll(event.files);
-      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
+      emit(
+        AssignmentCreationInitialState(
+          availableSubjects: _subjects,
+          attachments: _attachments,
+          audioRecording: _recording,
+        ),
+      );
     });
 
     on<FileDeleteEvent>((event, emit) {
       _attachments.remove(event.file);
-      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
+      emit(
+        AssignmentCreationInitialState(
+          availableSubjects: _subjects,
+          attachments: _attachments,
+          audioRecording: _recording,
+        ),
+      );
     });
 
     on<AddRecordingEvent>((event, emit) {
       _recording = event.uri;
       _attachments.add(File(event.uri.path));
-      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
+      emit(
+        AssignmentCreationInitialState(
+          availableSubjects: _subjects,
+          attachments: _attachments,
+          audioRecording: _recording,
+        ),
+      );
     });
 
     on<RemoveRecordingEvent>((event, emit) {
       _recording = null;
       _attachments.removeWhere((element) => element.path == _recording?.path);
-      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
+      emit(
+        AssignmentCreationInitialState(
+          availableSubjects: _subjects,
+          attachments: _attachments,
+          audioRecording: _recording,
+        ),
+      );
     });
 
     on<CreateAssignmentEvent>((event, emit) async {
@@ -77,8 +105,40 @@ class AssignmentCreationBloc
     });
 
     on<EditAssignmentEvent>((event, emit) async {
-      emit(AssignmentEditPendingState(_attachments));
 
+      final oldAssignment = await _assignmentsRepository.getAssignment(event.oldAssignmentId);
+
+      final newAttachments = await _attachmentRepository.uploadFiles(
+        oldAssignment.assignmentFolderName,
+        event.attachments,
+      );
+
+
+      final newAssignment = oldAssignment.copyWith(
+        title: event.title,
+        subject: event.subject,
+        dueDate: event.dueDate,
+        description: event.description,
+        attachments: newAttachments,
+      );
+
+      emit(AssignmentInCreationState(_attachments));
+
+      await _assignmentsRepository.editAssignment(newAssignment);
+
+      emit(AssignmentCreatedState(newAssignment, event.attachments));
+    });
+
+    on<BeginAssignmentEditEvent>((event, emit) async {
+      _attachments.clear();
+      _recording = null;
+      final assignment = await _assignmentsRepository.getAssignment(event.assignmentId);
+      emit(AssignmentEditStartedState(assignment));
+    });
+
+    on<DeleteAssignmentEvent>((event, emit) async {
+      await _assignmentsRepository.deleteAssignment(event.id);
+      emit(DeletionSuccessfulState());
     });
   }
 }

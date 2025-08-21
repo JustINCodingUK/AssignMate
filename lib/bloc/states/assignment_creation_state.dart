@@ -1,23 +1,22 @@
 import 'dart:io';
 
-import 'package:assignmate/model/attachment.dart';
-
 import '../../model/assignment.dart';
 
-abstract interface class AssignmentCreationState {
+abstract interface class AssignmentScreenState {}
+
+abstract interface class AssignmentCreationState implements AssignmentScreenState {
   final List<File> attachments;
 
-  AssignmentCreationState(this.attachments);
+  AssignmentCreationState({required this.attachments});
 }
 
-class AssignmentCreationBaseState implements AssignmentCreationState {
-  final List<String> availableSubjects;
-
+class AssignmentCreationInitialState implements AssignmentCreationState {
   @override
   final List<File> attachments;
+  final List<String> availableSubjects;
   final Uri? audioRecording;
 
-  AssignmentCreationBaseState(this.availableSubjects, this.attachments, this.audioRecording);
+  AssignmentCreationInitialState({this.availableSubjects = const [], this.attachments = const [], this.audioRecording});
 }
 
 class AssignmentInCreationState implements AssignmentCreationState {
@@ -34,6 +33,12 @@ class AssignmentEditPendingState implements AssignmentCreationState {
   AssignmentEditPendingState(this.attachments);
 }
 
+class AssignmentEditStartedState implements AssignmentScreenState {
+  final Assignment oldAssignment;
+
+  AssignmentEditStartedState(this.oldAssignment);
+}
+
 class AssignmentCreatedState implements AssignmentCreationState {
   final Assignment assignment;
   @override
@@ -47,4 +52,11 @@ class FileUploadingState implements AssignmentCreationState {
   final List<File> attachments;
 
   FileUploadingState(this.attachments);
+}
+
+class DeletionSuccessfulState implements AssignmentScreenState {}
+
+class AssignmentEditedState implements AssignmentScreenState {
+  final String title;
+  AssignmentEditedState(this.title);
 }
