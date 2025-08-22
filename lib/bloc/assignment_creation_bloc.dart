@@ -12,7 +12,7 @@ import '../network/google_api_client.dart';
 import 'events/assignment_creation_event.dart';
 
 class AssignmentCreationBloc
-    extends Bloc<AssignmentCreationEvent, AssignmentScreenState> {
+    extends Bloc<AssignmentCreationEvent, AssignmentCreationState> {
   final GoogleApiClient _driveClient;
   final _firestoreAssignmentClient = FirestoreClient<Assignment>();
   final _firestoreAttachmentClient = FirestoreClient<Attachment>();
@@ -20,13 +20,13 @@ class AssignmentCreationBloc
   late final AssignmentsRepository _assignmentsRepository;
 
   final _attachments = <File>[];
-  final List<String> _subjects;
+  final List<String> subjects;
   Uri? _recording;
 
   AssignmentCreationBloc(
     super.initialState,
     this._driveClient,
-    this._subjects,
+    this.subjects,
   ) {
     _attachmentRepository = AttachmentRepository(
       _firestoreAttachmentClient,
@@ -41,7 +41,7 @@ class AssignmentCreationBloc
       _attachments.addAll(event.files);
       emit(
         AssignmentCreationInitialState(
-          availableSubjects: _subjects,
+          availableSubjects: subjects,
           attachments: _attachments,
           audioRecording: _recording,
         ),
@@ -52,7 +52,7 @@ class AssignmentCreationBloc
       _attachments.remove(event.file);
       emit(
         AssignmentCreationInitialState(
-          availableSubjects: _subjects,
+          availableSubjects: subjects,
           attachments: _attachments,
           audioRecording: _recording,
         ),
@@ -64,7 +64,7 @@ class AssignmentCreationBloc
       _attachments.add(File(event.uri.path));
       emit(
         AssignmentCreationInitialState(
-          availableSubjects: _subjects,
+          availableSubjects: subjects,
           attachments: _attachments,
           audioRecording: _recording,
         ),
@@ -76,7 +76,7 @@ class AssignmentCreationBloc
       _attachments.removeWhere((element) => element.path == _recording?.path);
       emit(
         AssignmentCreationInitialState(
-          availableSubjects: _subjects,
+          availableSubjects: subjects,
           attachments: _attachments,
           audioRecording: _recording,
         ),
@@ -102,38 +102,6 @@ class AssignmentCreationBloc
       );
 
       emit(AssignmentCreatedState(assignment, _attachments));
-    });
-
-    on<EditAssignmentEvent>((event, emit) async {
-
-      final oldAssignment = await _assignmentsRepository.getAssignment(event.oldAssignmentId);
-
-      final newAttachments = await _attachmentRepository.uploadFiles(
-        oldAssignment.assignmentFolderName,
-        event.attachments,
-      );
-
-
-      final newAssignment = oldAssignment.copyWith(
-        title: event.title,
-        subject: event.subject,
-        dueDate: event.dueDate,
-        description: event.description,
-        attachments: newAttachments,
-      );
-
-      emit(AssignmentInCreationState(_attachments));
-
-      await _assignmentsRepository.editAssignment(newAssignment);
-
-      emit(AssignmentCreatedState(newAssignment, event.attachments));
-    });
-
-    on<BeginAssignmentEditEvent>((event, emit) async {
-      _attachments.clear();
-      _recording = null;
-      final assignment = await _assignmentsRepository.getAssignment(event.assignmentId);
-      emit(AssignmentEditStartedState(assignment));
     });
 
     on<DeleteAssignmentEvent>((event, emit) async {

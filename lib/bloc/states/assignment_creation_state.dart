@@ -2,9 +2,7 @@ import 'dart:io';
 
 import '../../model/assignment.dart';
 
-abstract interface class AssignmentScreenState {}
-
-abstract interface class AssignmentCreationState implements AssignmentScreenState {
+abstract interface class AssignmentCreationState {
   final List<File> attachments;
 
   AssignmentCreationState({required this.attachments});
@@ -26,19 +24,6 @@ class AssignmentInCreationState implements AssignmentCreationState {
   AssignmentInCreationState(this.attachments);
 }
 
-class AssignmentEditPendingState implements AssignmentCreationState {
-  @override
-  final List<File> attachments;
-
-  AssignmentEditPendingState(this.attachments);
-}
-
-class AssignmentEditStartedState implements AssignmentScreenState {
-  final Assignment oldAssignment;
-
-  AssignmentEditStartedState(this.oldAssignment);
-}
-
 class AssignmentCreatedState implements AssignmentCreationState {
   final Assignment assignment;
   @override
@@ -54,9 +39,7 @@ class FileUploadingState implements AssignmentCreationState {
   FileUploadingState(this.attachments);
 }
 
-class DeletionSuccessfulState implements AssignmentScreenState {}
-
-class AssignmentEditedState implements AssignmentScreenState {
-  final String title;
-  AssignmentEditedState(this.title);
+class DeletionSuccessfulState implements AssignmentCreationState {
+  @override
+  final attachments = [];
 }
