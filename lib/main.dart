@@ -2,6 +2,7 @@ import 'package:assignmate/bloc/auth_bloc.dart';
 import 'package:assignmate/bloc/events/auth_event.dart';
 import 'package:assignmate/data/assignment_repository.dart';
 import 'package:assignmate/data/attachment_repository.dart';
+import 'package:assignmate/db/database.dart';
 import 'package:assignmate/firebase_options.dart';
 import 'package:assignmate/nav.dart';
 import 'package:assignmate/network/firestore_client.dart';
@@ -16,14 +17,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.debug
+    androidProvider: AndroidProvider.playIntegrity
   );
-
-  runApp(AssignmateApplication());
+  final appDb = await getDatabase();
+  runApp(AssignmateApplication(appDb));
 }
 
 class AssignmateApplication extends StatelessWidget {
-  const AssignmateApplication({super.key});
+
+  final AppDatabase db;
+
+  const AssignmateApplication(this.db, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +44,7 @@ class AssignmateApplication extends StatelessWidget {
             FirestoreClient(),
             context.read<AuthBloc>().googleApiClient,
           ),
+          db
         ),
         child: MaterialApp.router(
           theme: brightness == Brightness.light ? theme.light() : theme.dark(),
