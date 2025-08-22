@@ -29,8 +29,6 @@ class AssignmentCreationRouteState extends State<AssignmentCreationRoute> {
   final _descriptionController = TextEditingController();
   final _subjectController = TextEditingController();
 
-  DateTime? _dueDate;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

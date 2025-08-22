@@ -16,7 +16,7 @@ class AssignmentCreationBloc
   final List<String> subjects;
   Uri? _recording;
 
-  AssignmentCreationBloc(super.initialState, this._subjects, this._assignmentsRepository) {
+  AssignmentCreationBloc(super.initialState, this.subjects, this._assignmentsRepository) {
 
     on<FileUploadEvent>((event, emit) {
       _attachments.addAll(event.files);

@@ -6,7 +6,6 @@ import 'package:assignmate/ext/pad.dart';
 import 'package:assignmate/nav.dart';
 import 'package:assignmate/ui/attachment_tile.dart';
 import 'package:assignmate/ui/media_player_card.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +23,6 @@ class AssignmentDetailsRoute extends StatefulWidget {
 }
 
 class AssignmentDetailsRouteState extends State<AssignmentDetailsRoute> {
-  bool _isPlaying = false;
 
   @override
   Widget build(BuildContext context) {
