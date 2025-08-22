@@ -51,8 +51,8 @@ final router = GoRouter(
             AssignmentCreationInitialState(
               availableSubjects: ["EC101", "CO101", "CS103", "ME105", "AM101"],
             ),
-            context.read<AuthBloc>().googleApiClient,
             ["EC101", "CO101", "CS103", "ME105", "AM101"],
+            context.read<AssignmentsRepository>()
           ),
           child: AssignmentCreationRoute(isEditMode: false),
         );

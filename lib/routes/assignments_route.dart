@@ -2,6 +2,7 @@ import 'package:assignmate/bloc/assignments_bloc.dart';
 import 'package:assignmate/bloc/auth_bloc.dart';
 import 'package:assignmate/bloc/events/assignment_event.dart';
 import 'package:assignmate/bloc/events/auth_event.dart';
+import 'package:assignmate/data/assignment_repository.dart';
 import 'package:assignmate/ext/pad.dart';
 import 'package:assignmate/ui/assignment_card.dart';
 import 'package:assignmate/ui/timed_greeting.dart';
@@ -53,7 +54,7 @@ class AssignmentsRoute extends StatelessWidget {
           body: BlocProvider<AssignmentsBloc>(
             create: (context) => AssignmentsBloc(
               AssignmentsLoadingState(),
-              context.read<AuthBloc>().googleApiClient,
+              context.read<AssignmentsRepository>()
             )..add(GetAssignmentsEvent(pendingOnly: false)),
             child: BlocBuilder<AssignmentsBloc, AssignmentState>(
               builder: (context, state) {
