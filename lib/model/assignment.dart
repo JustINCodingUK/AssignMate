@@ -1,7 +1,6 @@
 import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/model/attachment.dart';
 import 'package:assignmate/model/firestore_document.dart';
-import 'package:assignmate/network/firestore_client.dart';
 
 class Assignment implements FirestoreDocument {
 

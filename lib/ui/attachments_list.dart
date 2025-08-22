@@ -45,50 +45,54 @@ class AttachmentsList extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Attachments",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ).pad(16),
-                showControls
-                    ? createControls(context)
-                    : Container(),
-              ],
-            ),
+        if(state is AssignmentCreationState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Attachments",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ).pad(16),
+                  showControls
+                      ? createControls(context)
+                      : Container(),
+                ],
+              ),
 
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: state.attachments.isEmpty
-                  ? 1
-                  : state.attachments.length,
-              itemBuilder: (context, index) {
-                if (state.attachments.isEmpty) {
-                  return SizedBox(
-                    width: double.infinity,
-                    child: Text(
-                      "No Attachments, yet",
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                } else {
-                  return AttachmentTile(
-                    onClick: () {},
-                    name: state.attachments[index].name,
-                    icon: Icon(Icons.delete),
-                    onAction: () => context.read<AssignmentCreationBloc>().add(
-                      FileDeleteEvent(file: state.attachments[index]),
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        );
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: state.attachments.isEmpty
+                    ? 1
+                    : state.attachments.length,
+                itemBuilder: (context, index) {
+                  if (state.attachments.isEmpty) {
+                    return SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        "No Attachments, yet",
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  } else {
+                    return AttachmentTile(
+                      onClick: () {},
+                      name: state.attachments[index].name,
+                      icon: Icon(Icons.delete),
+                      onAction: () => context.read<AssignmentCreationBloc>().add(
+                        FileDeleteEvent(file: state.attachments[index]),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          );
+        } else {
+          return Container();
+        }
       },
     );
   }
