@@ -1,12 +1,14 @@
 import 'package:assignmate/bloc/assignment_creation_bloc.dart';
 import 'package:assignmate/bloc/assignment_details_bloc.dart';
+import 'package:assignmate/bloc/assignment_edit_bloc.dart';
 import 'package:assignmate/bloc/auth_bloc.dart';
-import 'package:assignmate/bloc/events/assignment_creation_event.dart';
 import 'package:assignmate/bloc/events/assignment_details_event.dart';
+import 'package:assignmate/bloc/events/assignment_edit_event.dart';
 import 'package:assignmate/bloc/states/assignment_creation_state.dart';
 import 'package:assignmate/data/assignment_repository.dart';
 import 'package:assignmate/routes/assignment_creation_route.dart';
 import 'package:assignmate/routes/assignment_details_route.dart';
+import 'package:assignmate/routes/assignment_edit_route.dart';
 import 'package:assignmate/routes/assignments_route.dart';
 import 'package:assignmate/routes/auth_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,20 +76,12 @@ final router = GoRouter(
       path: "/edit/:id",
       builder: (context, state) {
         String id = state.pathParameters["id"]!;
-        return BlocProvider(
-          create: (context) =>
-              AssignmentCreationBloc(
-                AssignmentCreationInitialState(
-                  availableSubjects: ["EC101", "CO101", "CS103", "ME105", "AM101"],
-                ),
-                context.read<AuthBloc>().googleApiClient,
-                ["EC101", "CO101", "CS103", "ME105", "AM101"],
-              )..add(
-                BeginAssignmentEditEvent(
-                  assignmentId: id,
-                ),
-              ),
-          child: AssignmentCreationRoute(isEditMode: true, oldAssignmentId: id),
+        return BlocProvider<AssignmentEditBloc>(
+          create: (context) => AssignmentEditBloc(
+            context.read<AssignmentsRepository>(),
+            ["EC101", "CO101", "CS103", "ME105", "AM101"],
+          )..add(BeginAssignmentEditEvent(assignmentId: id)),
+          child: AssignmentEditRoute(),
         );
       },
     ),
