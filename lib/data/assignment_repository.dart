@@ -24,7 +24,7 @@ class AssignmentsRepository {
     );
 
     Attachment? recordingAttachment;
-    if(recording != null) {
+    if (recording != null) {
       final recordingAttachments = await _attachmentRepository.uploadFiles(
         assignmentNoFiles.assignmentFolderName,
         [recording],
@@ -41,44 +41,69 @@ class AssignmentsRepository {
     return assignmentWithId;
   }
 
-  Future<void> editAssignment(Assignment assignment) async {
-    final oldAssignment = await _firestoreClient.getDocument(assignment.id);
-    final attachmentsToDelete = oldAssignment.attachments
-        .where(
-          (oldAttachment) => !assignment.attachments.any(
-            (newAttachment) => newAttachment.id == oldAttachment.id,
-          ),
-        )
-        .toList();
-
-    final filesToUpload = assignment.attachments
-        .where((newAttachment) => newAttachment.id == null)
-        .map((e) => File(e.uri.toFilePath()))
-        .toList();
-
-    for (final attachment in attachmentsToDelete) {
-      await _attachmentRepository.deleteAttachment(attachment.driveFileId);
+  Future<void> editAssignment(
+    Assignment assignment,
+    Assignment oldAssignment,
+  ) async {
+    if (assignment.assignmentFolderName != oldAssignment.assignmentFolderName) {
+      await _attachmentRepository.renameFolder(
+        oldAssignment.assignmentFolderName,
+        assignment.assignmentFolderName,
+      );
     }
 
-    final uploadedAttachments = await _attachmentRepository.uploadFiles(
+    final attachmentsToDelete = oldAssignment.attachments.where((it) {
+      return !assignment.attachments.contains(it);
+    });
+    final attachmentsToAdd = assignment.attachments.where((it) {
+      return !oldAssignment.attachments.contains(it);
+    });
+
+    for (Attachment attachment in attachmentsToDelete) {
+      await _attachmentRepository.deleteAttachment(
+        attachment.id,
+        attachment.driveFileId,
+      );
+    }
+
+    final newAttachments = await _attachmentRepository.uploadFiles(
       assignment.assignmentFolderName,
-      filesToUpload,
+      attachmentsToAdd.map((it) => File(it.uri.path)).toList(),
     );
 
-    final updatedAssignment = assignment.copyWith(
-      attachments: [
-        ...assignment.attachments.where((element) => element.id != null),
-        ...uploadedAttachments,
-      ],
-    );
+    Attachment? recording = oldAssignment.recording;
 
-    await _firestoreClient.editDocument(updatedAssignment);
+    if (oldAssignment.recording == null && assignment.recording != null) {
+      final recordingAttachments = await _attachmentRepository.uploadFiles(
+        assignment.assignmentFolderName,
+        [File(assignment.recording!.uri.path)],
+      );
+      recording = recordingAttachments.first;
+    }else if(oldAssignment.recording != null && assignment.recording != null) {
+      if(oldAssignment.recording!.id != assignment.recording!.id) {
+        final recordingAttachments = await _attachmentRepository.uploadFiles(
+          assignment.assignmentFolderName,
+          [File(assignment.recording!.uri.path)],
+        );
+        recording = recordingAttachments.first;
+      }
+    } else if(oldAssignment.recording != null && assignment.recording == null) {
+      await _attachmentRepository.deleteAttachment(oldAssignment.recording!.id, oldAssignment.recording!.id);
+      recording = null;
+    }
+
+
+    final newAssignment = assignment.copyWith(attachments: newAttachments, recording: recording);
+    await _firestoreClient.editDocument(newAssignment);
   }
 
   Future<void> deleteAssignment(String id) async {
     final assignment = await _firestoreClient.getDocument(id);
     for (Attachment attachment in assignment.attachments) {
-      _attachmentRepository.deleteAttachment(attachment.driveFileId);
+      _attachmentRepository.deleteAttachment(
+        attachment.id,
+        attachment.driveFileId,
+      );
       _firestoreClient.deleteDocument(attachment.id);
     }
     _firestoreClient.deleteDocument(id);

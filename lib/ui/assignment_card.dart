@@ -25,12 +25,12 @@ class AssignmentCard extends StatelessWidget {
     return Card.filled(
         shape: !assignment.isCompleted ? RoundedRectangleBorder(
           side: BorderSide(
-            color: Theme.of(context).colorScheme.primary, // Border color
-            width: 4,           // Border width
+            color: Theme.of(context).colorScheme.primary,
+            width: 4,
           ),
-          borderRadius: BorderRadius.circular(32), // Match card’s corner radius
+          borderRadius: BorderRadius.circular(32),
         ) : null,
-        elevation: 16, // Match card’s corner radius
+        elevation: 16,
         child: InkWell(
           onTap: onClick,
           child: Stack(

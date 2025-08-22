@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:assignmate/model/attachment.dart';
@@ -121,8 +120,7 @@ class GoogleApiClient {
     );
 
     final uri = Uri(path: uploadedFile.webViewLink);
-    log(uploadedFile.webContentLink.toString());
-    log(uploadedFile.webViewLink.toString());
+
     return Attachment(
       id: "0",
       driveFileId: uploadedFile.id!,
@@ -172,6 +170,14 @@ class GoogleApiClient {
 
   Future<void> deleteFile(String fileId) async {
     await _driveApi.files.delete(fileId);
+  }
+
+  Future<void> renameFolder(String oldName, String newName) async {
+    final id = await _getFolderID(oldName);
+
+    final folder = drive.File()..name = newName;
+
+    await _driveApi.files.update(folder, id, $fields: "files(id, name)");
   }
 
   Future<String> _getFolderID(String name) async {
