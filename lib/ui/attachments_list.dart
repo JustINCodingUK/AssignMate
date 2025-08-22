@@ -19,7 +19,7 @@ class AttachmentsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AssignmentCreationBloc, AssignmentScreenState>(
+    return BlocConsumer<AssignmentCreationBloc, AssignmentCreationState>(
       listenWhen: (previous, current) {
         return (previous is FileUploadingState);
       },
@@ -90,8 +90,6 @@ class AttachmentsList extends StatelessWidget {
               ),
             ],
           );
-        } else if(state is AssignmentEditStartedState) {
-          return Container(); // TODO
         } else {
           return Container();
         }
