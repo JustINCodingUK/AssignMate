@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:assignmate/model/assignment.dart';
-
 abstract interface class AssignmentCreationEvent {}
 
 class CreateAssignmentEvent implements AssignmentCreationEvent {

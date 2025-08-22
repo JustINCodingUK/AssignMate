@@ -1,7 +1,6 @@
 import 'package:assignmate/bloc/assignment_creation_bloc.dart';
 import 'package:assignmate/bloc/assignment_details_bloc.dart';
 import 'package:assignmate/bloc/assignment_edit_bloc.dart';
-import 'package:assignmate/bloc/auth_bloc.dart';
 import 'package:assignmate/bloc/events/assignment_details_event.dart';
 import 'package:assignmate/bloc/events/assignment_edit_event.dart';
 import 'package:assignmate/bloc/states/assignment_creation_state.dart';
