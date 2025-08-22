@@ -18,29 +18,6 @@ class CreateAssignmentEvent implements AssignmentCreationEvent {
   });
 }
 
-class EditAssignmentEvent implements AssignmentCreationEvent {
-  final String oldAssignmentId;
-  final String title;
-  final String subject;
-  final DateTime dueDate;
-  final String description;
-  final List<File> attachments;
-
-  EditAssignmentEvent({
-    required this.oldAssignmentId,
-    required this.title,
-    required this.subject,
-    required this.description,
-    required this.dueDate,
-    required this.attachments,
-  });
-}
-
-class BeginAssignmentEditEvent implements AssignmentCreationEvent {
-  final String assignmentId;
-
-  BeginAssignmentEditEvent({required this.assignmentId});
-}
 
 class FileUploadEvent implements AssignmentCreationEvent {
   final List<File> files;
