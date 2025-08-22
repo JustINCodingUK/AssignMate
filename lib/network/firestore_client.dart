@@ -36,10 +36,21 @@ class FirestoreClient<T extends FirestoreDocument> {
   }
 
   Future<void> editDocument(T document) async {
+    final docFirestoreStructure = document.toFirestoreStructure();
+    if(T == Assignment) {
+      final firestoreReferenceStructure =
+      (docFirestoreStructure["attachments"] as List<Attachment>).map((it) {
+        final docRef = _firestore.collection("attachments").doc(it.id);
+        return docRef;
+      });
+
+      docFirestoreStructure["attachments"] = firestoreReferenceStructure
+          .toList();
+    }
     await _firestore
         .collection(collectionName)
         .doc(document.id)
-        .set(document.toFirestoreStructure());
+        .set(docFirestoreStructure);
   }
 
   Future<void> deleteDocument(String id) async {
