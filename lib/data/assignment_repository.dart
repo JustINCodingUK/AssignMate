@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:assignmate/data/attachment_repository.dart';
+import 'package:assignmate/db/database.dart';
+import 'package:assignmate/db/entity/assignment_entity.dart';
 import 'package:assignmate/model/assignment.dart';
 import 'package:assignmate/model/attachment.dart';
 import 'package:assignmate/network/firestore_client.dart';
@@ -9,8 +11,8 @@ import 'package:assignmate/network/firestore_client.dart';
 class AssignmentsRepository {
   final FirestoreClient<Assignment> _firestoreClient;
   final AttachmentRepository _attachmentRepository;
-
-  AssignmentsRepository(this._firestoreClient, this._attachmentRepository);
+  final AppDatabase db;
+  AssignmentsRepository(this._firestoreClient, this._attachmentRepository, this.db);
 
   Future<Assignment> createAssignment(
     Assignment assignmentNoFiles,
@@ -113,8 +115,16 @@ class AssignmentsRepository {
     return assignments;
   }
 
+  Stream<Assignment> getLocalAssignments() {
+    return db.assignmentDao.getAllAssignments().asyncMap((it) async {
+      final assignment = await it?.toModel(db.attachmentDao);
+      return assignment!;
+    });
+  }
+
   Future<Assignment> getAssignment(String id) async {
-    final assignment = await _firestoreClient.getDocument(id);
+    final assignmentEntity = await db.assignmentDao.getAssignmentById(id);
+    final assignment = await assignmentEntity!.toModel(db.attachmentDao);
     return assignment;
   }
 
