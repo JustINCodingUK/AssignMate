@@ -19,9 +19,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final appDb = await getDatabase();
 
-  final fcmNotificationManager = FCMNotificationManager(
-    LocalNotificationManager()
-  );
+  final fcmNotificationManager = FCMNotificationManager();
 
   await fcmNotificationManager.checkPermission();
   fcmNotificationManager.registerBackgroundCallback();
