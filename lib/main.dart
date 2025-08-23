@@ -7,6 +7,7 @@ import 'package:assignmate/firebase_options.dart';
 import 'package:assignmate/nav.dart';
 import 'package:assignmate/network/firestore_client.dart';
 import 'package:assignmate/notifications/fcm_notifications.dart';
+import 'package:assignmate/notifications/local_notifications.dart';
 import 'package:assignmate/theme/theme.dart';
 import 'package:assignmate/theme/util.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -17,11 +18,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final appDb = await getDatabase();
-  final notificationManager = FCMNotificationManager()
-    ..registerBackgroundCallback();
+
+  final fcmNotificationManager = FCMNotificationManager(
+    LocalNotificationManager()
+  );
+
+  await fcmNotificationManager.checkPermission();
+  fcmNotificationManager.registerBackgroundCallback();
 
   runApp(
-    AssignmateApplication(db: appDb, notificationManager: notificationManager),
+    AssignmateApplication(db: appDb, notificationManager: fcmNotificationManager),
   );
 }
 
