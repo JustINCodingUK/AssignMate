@@ -16,8 +16,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 Future<void> _handleFcmPayload(RemoteMessage message) async {
   final db = await getDatabase();
 
-  final localNotificationManager = await LocalNotificationManager.get();
-
   final attachmentRepository = AttachmentRepository(
     FirestoreClient(),
     GoogleApiClient(),
