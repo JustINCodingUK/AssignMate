@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:assignmate/data/attachment_repository.dart';
 import 'package:assignmate/db/database.dart';
 import 'package:assignmate/db/entity/assignment_entity.dart';
+import 'package:assignmate/ext/model_to_entity.dart';
 import 'package:assignmate/model/assignment.dart';
 import 'package:assignmate/model/attachment.dart';
 import 'package:assignmate/network/firestore_client.dart';
@@ -73,6 +74,15 @@ class AssignmentsRepository {
     );
 
     await _firestoreClient.editDocument(updatedAssignment);
+  }
+
+  Future<void> saveAssignment(Assignment assignment) async {
+    final assignmentEntity = assignment.toEntity();
+    final attachments = assignment.attachments.toEntities(assignment.id);
+    await db.assignmentDao.insertAssignment(assignmentEntity);
+    for(var attachment in attachments) {
+      await db.attachmentDao.insertAttachment(attachment);
+    }
   }
 
   Future<void> deleteAssignment(String id) async {

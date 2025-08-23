@@ -31,33 +31,12 @@ Future<void> _handleFcmPayload(RemoteMessage message) async {
     case "create": _saveAssignment(payload["id"], assignmentRepository);
     // TODO: After merge with feature/edit
   }
-
 }
 
 Future<void> _saveAssignment(String id, AssignmentsRepository assignmentRepository) async {
   final assignment = await assignmentRepository.getAssignment(id);
 
-  final assignmentEntity = AssignmentEntity(
-    id: assignment.id,
-    title: assignment.title,
-    subject: assignment.subject,
-    description: assignment.description,
-    dueDate: assignment.dueDate.date(),
-    isCompleted: false,
-  );
-
-  assignment.attachments.map((it) async {
-    final attachment = AttachmentEntity(
-      id: it.id,
-      assignmentId: assignment.id,
-      driveFileId: it.driveFileId,
-      filename: it.filename,
-      uri: it.uri.toString(),
-    );
-    await assignmentRepository.db.attachmentDao.insertAttachment(attachment);
-  });
-
-  await assignmentRepository.db.assignmentDao.insertAssignment(assignmentEntity);
+  await assignmentRepository.saveAssignment(assignment);
   final localNotificationManager = await LocalNotificationManager.get();
   await localNotificationManager.scheduleNotification(
     assignment.id.hashCode & 0x7FFFFFFF,
