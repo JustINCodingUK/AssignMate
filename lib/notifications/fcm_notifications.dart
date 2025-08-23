@@ -8,11 +8,15 @@ import 'package:assignmate/db/entity/attachment_entity.dart';
 import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/network/firestore_client.dart';
 import 'package:assignmate/network/google_api_client.dart';
+import 'package:assignmate/notifications/local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-Future<void> handleFcmPayload(RemoteMessage message) async {
+Future<void> _handleFcmPayload(
+  RemoteMessage message,
+  LocalNotificationManager localNotificationManager,
+) async {
   final db = await getDatabase();
 
   final attachmentRepository = AttachmentRepository(
@@ -26,9 +30,7 @@ Future<void> handleFcmPayload(RemoteMessage message) async {
   );
   final payload = message.data;
 
-  final assignment = await assignmentRepository.getAssignment(
-    payload["id"],
-  );
+  final assignment = await assignmentRepository.getAssignment(payload["id"]);
   final assignmentEntity = AssignmentEntity(
     id: assignment.id,
     title: assignment.title,
@@ -40,20 +42,30 @@ Future<void> handleFcmPayload(RemoteMessage message) async {
 
   assignment.attachments.map((it) async {
     final attachment = AttachmentEntity(
-        id: it.id,
-        assignmentId: assignment.id,
-        driveFileId: it.driveFileId,
-        filename: it.filename,
-        uri: it.uri.toString()
+      id: it.id,
+      assignmentId: assignment.id,
+      driveFileId: it.driveFileId,
+      filename: it.filename,
+      uri: it.uri.toString(),
     );
     await db.attachmentDao.insertAttachment(attachment);
   });
 
   await db.assignmentDao.insertAssignment(assignmentEntity);
+  await localNotificationManager.scheduleNotification(
+    assignment.id.hashCode & 0x7FFFFFFF,
+    "New Assignment",
+    assignment.title,
+    assignment.dueDate,
+  );
 }
 
 class FCMNotificationManager {
   final fcm = FirebaseMessaging.instance;
+
+  final LocalNotificationManager localNotificationManager;
+
+  FCMNotificationManager(this.localNotificationManager);
 
   Future<bool> checkPermission() async {
     final permissionStatus = await fcm.requestPermission();
@@ -62,16 +74,20 @@ class FCMNotificationManager {
   }
 
   void registerBackgroundCallback() {
-    FirebaseMessaging.onBackgroundMessage(handleFcmPayload);
+    FirebaseMessaging.onBackgroundMessage(
+      (message) => _handleFcmPayload(message, localNotificationManager),
+    );
   }
 
   void registerForegroundCallback(BuildContext context) {
     FirebaseMessaging.onMessage.listen((message) {
-      handleFcmPayload(message);
-      if(context.mounted) {
+      _handleFcmPayload(message, localNotificationManager);
+      if (context.mounted) {
         try {
-          context.read<AssignmentsBloc>().add(GetAssignmentsEvent(pendingOnly: true));
-        } catch(e) {}
+          context.read<AssignmentsBloc>().add(
+            GetAssignmentsEvent(pendingOnly: true),
+          );
+        } catch (e) {}
       }
     });
   }
