@@ -13,11 +13,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-Future<void> _handleFcmPayload(
-  RemoteMessage message,
-  LocalNotificationManager localNotificationManager,
-) async {
+Future<void> _handleFcmPayload(RemoteMessage message) async {
   final db = await getDatabase();
+
+  final localNotificationManager = await LocalNotificationManager.get();
 
   final attachmentRepository = AttachmentRepository(
     FirestoreClient(),
@@ -30,7 +29,16 @@ Future<void> _handleFcmPayload(
   );
   final payload = message.data;
 
-  final assignment = await assignmentRepository.getAssignment(payload["id"]);
+  switch(payload["action"]) {
+    case "create": _saveAssignment(payload["id"], assignmentRepository);
+    // TODO: After merge with feature/edit
+  }
+
+}
+
+Future<void> _saveAssignment(String id, AssignmentsRepository assignmentRepository) async {
+  final assignment = await assignmentRepository.getAssignment(id);
+
   final assignmentEntity = AssignmentEntity(
     id: assignment.id,
     title: assignment.title,
@@ -48,10 +56,11 @@ Future<void> _handleFcmPayload(
       filename: it.filename,
       uri: it.uri.toString(),
     );
-    await db.attachmentDao.insertAttachment(attachment);
+    await assignmentRepository.db.attachmentDao.insertAttachment(attachment);
   });
 
-  await db.assignmentDao.insertAssignment(assignmentEntity);
+  await assignmentRepository.db.assignmentDao.insertAssignment(assignmentEntity);
+  final localNotificationManager = await LocalNotificationManager.get();
   await localNotificationManager.scheduleNotification(
     assignment.id.hashCode & 0x7FFFFFFF,
     "New Assignment",
@@ -63,10 +72,6 @@ Future<void> _handleFcmPayload(
 class FCMNotificationManager {
   final fcm = FirebaseMessaging.instance;
 
-  final LocalNotificationManager localNotificationManager;
-
-  FCMNotificationManager(this.localNotificationManager);
-
   Future<bool> checkPermission() async {
     final permissionStatus = await fcm.requestPermission();
     return permissionStatus.authorizationStatus ==
@@ -74,14 +79,12 @@ class FCMNotificationManager {
   }
 
   void registerBackgroundCallback() {
-    FirebaseMessaging.onBackgroundMessage(
-      (message) => _handleFcmPayload(message, localNotificationManager),
-    );
+    FirebaseMessaging.onBackgroundMessage(_handleFcmPayload);
   }
 
   void registerForegroundCallback(BuildContext context) {
     FirebaseMessaging.onMessage.listen((message) {
-      _handleFcmPayload(message, localNotificationManager);
+      _handleFcmPayload(message);
       if (context.mounted) {
         try {
           context.read<AssignmentsBloc>().add(
