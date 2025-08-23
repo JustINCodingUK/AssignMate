@@ -3,15 +3,23 @@ import 'package:timezone/timezone.dart';
 
 class LocalNotificationManager {
   late final FlutterLocalNotificationsPlugin localNotificationsPlugin;
-
-  Future<void> init() async {
-    localNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    const androidSettings = AndroidInitializationSettings(
-      "@mipmap/ic_launcher",
-    );
-    const settings = InitializationSettings(android: androidSettings);
-    await localNotificationsPlugin.initialize(settings);
+  static LocalNotificationManager? _instance;
+  static Future<LocalNotificationManager> get() async {
+    if(_instance == null) {
+      _instance = LocalNotificationManager._();
+      _instance!.localNotificationsPlugin = FlutterLocalNotificationsPlugin();
+      const androidSettings = AndroidInitializationSettings(
+        "@mipmap/ic_launcher",
+      );
+      const settings = InitializationSettings(android: androidSettings);
+      await _instance!.localNotificationsPlugin.initialize(settings);
+      _instance = LocalNotificationManager._();
+    }
+    return _instance!;
   }
+
+  LocalNotificationManager._();
+
 
   Future<void> scheduleNotification(
     int id,
