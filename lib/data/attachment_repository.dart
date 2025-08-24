@@ -30,10 +30,13 @@ class AttachmentRepository {
     return list;
   }
 
-  Future<void> deleteAttachment(String id) async {
-    final original = await _firestoreClient.getDocument(id);
-    await _driveClient.deleteFile(original.driveFileId);
+  Future<void> deleteAttachment(String id, String driveFileId) async {
+    await _driveClient.deleteFile(driveFileId);
     await _firestoreClient.deleteDocument(id);
+  }
+
+  Future<void> renameFolder(String oldName, String newName) async {
+    await _driveClient.renameFolder(oldName, newName);
   }
 
   Future<File> getAttachment(Attachment attachment) async {
