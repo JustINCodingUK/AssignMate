@@ -13,31 +13,55 @@ class AssignmentCreationBloc
   final AssignmentsRepository _assignmentsRepository;
 
   final _attachments = <File>[];
-  final List<String> _subjects;
+  final List<String> subjects;
   Uri? _recording;
 
-  AssignmentCreationBloc(super.initialState, this._subjects, this._assignmentsRepository) {
+  AssignmentCreationBloc(super.initialState, this.subjects, this._assignmentsRepository) {
 
     on<FileUploadEvent>((event, emit) {
       _attachments.addAll(event.files);
-      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
+      emit(
+        AssignmentCreationInitialState(
+          availableSubjects: subjects,
+          attachments: _attachments,
+          audioRecording: _recording,
+        ),
+      );
     });
 
     on<FileDeleteEvent>((event, emit) {
       _attachments.remove(event.file);
-      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
+      emit(
+        AssignmentCreationInitialState(
+          availableSubjects: subjects,
+          attachments: _attachments,
+          audioRecording: _recording,
+        ),
+      );
     });
 
     on<AddRecordingEvent>((event, emit) {
       _recording = event.uri;
       _attachments.add(File(event.uri.path));
-      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
+      emit(
+        AssignmentCreationInitialState(
+          availableSubjects: subjects,
+          attachments: _attachments,
+          audioRecording: _recording,
+        ),
+      );
     });
 
     on<RemoveRecordingEvent>((event, emit) {
       _recording = null;
       _attachments.removeWhere((element) => element.path == _recording?.path);
-      emit(AssignmentCreationBaseState(_subjects, _attachments, _recording));
+      emit(
+        AssignmentCreationInitialState(
+          availableSubjects: subjects,
+          attachments: _attachments,
+          audioRecording: _recording,
+        ),
+      );
     });
 
     on<CreateAssignmentEvent>((event, emit) async {
@@ -61,9 +85,9 @@ class AssignmentCreationBloc
       emit(AssignmentCreatedState(assignment, _attachments));
     });
 
-    on<EditAssignmentEvent>((event, emit) async {
-      emit(AssignmentEditPendingState(_attachments));
-
+    on<DeleteAssignmentEvent>((event, emit) async {
+      await _assignmentsRepository.deleteAssignment(event.id);
+      emit(DeletionSuccessfulState());
     });
   }
 }

@@ -1,7 +1,17 @@
 abstract interface class AssignmentEvent {}
 
-class GetAssignmentsEvent implements AssignmentEvent {
-  final bool pendingOnly;
+class AssignmentsInitEvent implements AssignmentEvent {}
 
-  GetAssignmentsEvent({required this.pendingOnly});
+class GetAssignmentsEvent implements AssignmentEvent {}
+
+class ModifyAssignmentCompletion implements AssignmentEvent {
+  final String id;
+
+  ModifyAssignmentCompletion(this.id);
+}
+
+class SwitchModeEvent implements AssignmentEvent {
+  final bool isPendingMode;
+
+  SwitchModeEvent(this.isPendingMode);
 }
