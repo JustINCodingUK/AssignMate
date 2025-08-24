@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:assignmate/data/attachment_repository.dart';
 import 'package:assignmate/db/database.dart';
 import 'package:assignmate/db/entity/assignment_entity.dart';
+import 'package:assignmate/ext/model_to_entity.dart';
 import 'package:assignmate/model/assignment.dart';
 import 'package:assignmate/model/attachment.dart';
 import 'package:assignmate/network/firestore_client.dart';
@@ -11,7 +12,12 @@ class AssignmentsRepository {
   final FirestoreClient<Assignment> _firestoreClient;
   final AttachmentRepository _attachmentRepository;
   final AppDatabase db;
-  AssignmentsRepository(this._firestoreClient, this._attachmentRepository, this.db);
+
+  AssignmentsRepository(
+    this._firestoreClient,
+    this._attachmentRepository,
+    this.db,
+  );
 
   Future<Assignment> createAssignment(
     Assignment assignmentNoFiles,
@@ -79,21 +85,28 @@ class AssignmentsRepository {
         [File(assignment.recording!.uri.path)],
       );
       recording = recordingAttachments.first;
-    }else if(oldAssignment.recording != null && assignment.recording != null) {
-      if(oldAssignment.recording!.id != assignment.recording!.id) {
+    } else if (oldAssignment.recording != null &&
+        assignment.recording != null) {
+      if (oldAssignment.recording!.id != assignment.recording!.id) {
         final recordingAttachments = await _attachmentRepository.uploadFiles(
           assignment.assignmentFolderName,
           [File(assignment.recording!.uri.path)],
         );
         recording = recordingAttachments.first;
       }
-    } else if(oldAssignment.recording != null && assignment.recording == null) {
-      await _attachmentRepository.deleteAttachment(oldAssignment.recording!.id, oldAssignment.recording!.id);
+    } else if (oldAssignment.recording != null &&
+        assignment.recording == null) {
+      await _attachmentRepository.deleteAttachment(
+        oldAssignment.recording!.id,
+        oldAssignment.recording!.id,
+      );
       recording = null;
     }
 
-
-    final newAssignment = assignment.copyWith(attachments: newAttachments, recording: recording);
+    final newAssignment = assignment.copyWith(
+      attachments: newAttachments,
+      recording: recording,
+    );
     await _firestoreClient.editDocument(newAssignment);
   }
 
@@ -109,16 +122,19 @@ class AssignmentsRepository {
     _firestoreClient.deleteDocument(id);
   }
 
-  Future<List<Assignment>> getAssignments() {
+  Future<List<Assignment>> getFirestoreAssignments() {
     final assignments = _firestoreClient.getAllDocuments();
     return assignments;
   }
 
-  Stream<Assignment> getLocalAssignments() {
-    return db.assignmentDao.getAllAssignments().asyncMap((it) async {
-      final assignment = await it?.toModel(db.attachmentDao);
-      return assignment!;
-    });
+  Future<List<Assignment>> getLocalAssignments() async {
+    final assignmentEntities = await db.assignmentDao.getAllAssignments();
+    final List<Assignment> assignments = [];
+    for (AssignmentEntity entity in assignmentEntities) {
+      final assignment = await entity.toModel(db.attachmentDao);
+      assignments.add(assignment);
+    }
+    return assignments;
   }
 
   Future<Assignment> getAssignment(String id) async {
@@ -130,5 +146,22 @@ class AssignmentsRepository {
   Future<File> getAttachment(Attachment attachment) async {
     final recording = await _attachmentRepository.getAttachment(attachment);
     return recording;
+  }
+
+  Future<void> modifyAssignmentCompletion(Assignment assignment) async {
+    final updatedAssignment = assignment.copyWith(
+      isCompleted: !assignment.isCompleted,
+    );
+    await db.assignmentDao.updateAssignment(updatedAssignment.toEntity());
+  }
+
+  Future<void> refreshAssignments() async {
+    final count = await db.assignmentDao.getAssignmentCount();
+    if (count == 0) {
+      final assignments = await getFirestoreAssignments();
+      for (Assignment assignment in assignments) {
+        await db.assignmentDao.insertAssignment(assignment.toEntity());
+      }
+    }
   }
 }
