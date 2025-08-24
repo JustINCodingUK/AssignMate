@@ -1,15 +1,26 @@
-import 'dart:developer';
-
 import 'package:assignmate/ext/attachment_ref.dart';
+import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/model/assignment.dart';
 import 'package:assignmate/model/attachment.dart';
 import 'package:assignmate/model/firestore_document.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../model/reminder.dart';
+
 class FirestoreClient<T extends FirestoreDocument> {
   final _firestore = FirebaseFirestore.instance;
 
-  final collectionName = (T == Assignment) ? "assignments" : "attachments";
+  late final String collectionName;
+
+  FirestoreClient() {
+    if(T == Assignment) {
+      collectionName = "assignments";
+    } else if(T == Attachment){
+      collectionName = "attachments";
+    } else {
+      collectionName = "reminders";
+    }
+  }
 
   Future<T> createDocument(T document) async {
     final id = _firestore.collection(collectionName).doc().id;
@@ -62,18 +73,26 @@ class FirestoreClient<T extends FirestoreDocument> {
 
     final data = snapshot.data()!;
     if (T == Assignment) {
-      final docRefs = (data["attachments"] as List).map((it) => it as DocumentReference<Map<String, dynamic>>).toList();
+      final docRefs = (data["attachments"] as List).map((
+          it) => it as DocumentReference<Map<String, dynamic>>).toList();
       final attachmentRefs = await docRefs.toAttachments();
 
       return Assignment(
-            description: data["description"],
-            id: data["id"],
-            title: data["title"],
-            subject: data["subject"],
-            dueDate: DateTime.parse(data["dueDate"]),
-            attachments: attachmentRefs,
-          )
-          as T;
+        description: data["description"],
+        id: data["id"],
+        title: data["title"],
+        subject: data["subject"],
+        dueDate: DateTime.parse(data["dueDate"]),
+        attachments: attachmentRefs,
+      )
+      as T;
+    } else if(T == Reminder) {
+      return Reminder(
+        id: data["id"],
+        content: data["content"],
+        isRead: data["isRead"],
+        creationDate: (data["creationDate"] as String).asDate()
+      ) as T;
     } else {
       return Attachment(
             id: data["id"],
@@ -92,10 +111,10 @@ class FirestoreClient<T extends FirestoreDocument> {
       final data = it.data();
 
       if (T == Assignment && data.keys.contains("title")) {
-        log(data["attachments"].toString());
-        final docRefs = (data["attachments"] as List).map((it) => it as DocumentReference<Map<String, dynamic>>).toList();
+        final docRefs = (data["attachments"] as List).map((
+            it) => it as DocumentReference<Map<String, dynamic>>).toList();
         final attachments = await docRefs.toAttachments();
-        final assignment =  Assignment(
+        final assignment = Assignment(
           id: data["id"],
           description: data["description"],
           title: data["title"],
@@ -105,6 +124,15 @@ class FirestoreClient<T extends FirestoreDocument> {
         )
         as T;
         newList.add(assignment);
+      } else if(T == Reminder) {
+        final reminder = Reminder(
+          id: data["id"],
+          content: data["content"],
+          isRead: data["isRead"],
+          creationDate: (data["creationDate"] as String).asDate()
+        )
+        as T;
+        newList.add(reminder);
       } else {
         final attachment = Attachment(
           id: data["id"],
