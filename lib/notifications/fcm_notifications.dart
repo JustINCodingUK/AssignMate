@@ -3,9 +3,6 @@ import 'package:assignmate/bloc/events/assignment_event.dart';
 import 'package:assignmate/data/assignment_repository.dart';
 import 'package:assignmate/data/attachment_repository.dart';
 import 'package:assignmate/db/database.dart';
-import 'package:assignmate/db/entity/assignment_entity.dart';
-import 'package:assignmate/db/entity/attachment_entity.dart';
-import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/network/firestore_client.dart';
 import 'package:assignmate/network/google_api_client.dart';
 import 'package:assignmate/notifications/local_notifications.dart';
@@ -56,10 +53,12 @@ class FCMNotificationManager {
   }
 
   void registerBackgroundCallback() {
+    fcm.subscribeToTopic("cs6");
     FirebaseMessaging.onBackgroundMessage(_handleFcmPayload);
   }
 
   void registerForegroundCallback(BuildContext context) {
+    fcm.subscribeToTopic("cs6");
     FirebaseMessaging.onMessage.listen((message) {
       _handleFcmPayload(message);
       if (context.mounted) {
