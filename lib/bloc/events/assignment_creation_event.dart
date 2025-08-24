@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:assignmate/model/assignment.dart';
-
 abstract interface class AssignmentCreationEvent {}
 
 class CreateAssignmentEvent implements AssignmentCreationEvent {
@@ -18,23 +16,6 @@ class CreateAssignmentEvent implements AssignmentCreationEvent {
   });
 }
 
-class EditAssignmentEvent implements AssignmentCreationEvent {
-  final Assignment oldAssignment;
-  final String title;
-  final String subject;
-  final DateTime dueDate;
-  final String description;
-  final List<String> attachments;
-
-  EditAssignmentEvent({
-    required this.oldAssignment,
-    required this.title,
-    required this.subject,
-    required this.description,
-    required this.dueDate,
-    required this.attachments,
-  });
-}
 
 class FileUploadEvent implements AssignmentCreationEvent {
   final List<File> files;
@@ -55,3 +36,9 @@ class AddRecordingEvent implements AssignmentCreationEvent {
 }
 
 class RemoveRecordingEvent implements AssignmentCreationEvent {}
+
+class DeleteAssignmentEvent implements AssignmentCreationEvent {
+  final String id;
+
+  DeleteAssignmentEvent({required this.id});
+}

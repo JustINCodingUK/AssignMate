@@ -5,17 +5,16 @@ import '../../model/assignment.dart';
 abstract interface class AssignmentCreationState {
   final List<File> attachments;
 
-  AssignmentCreationState(this.attachments);
+  AssignmentCreationState({required this.attachments});
 }
 
-class AssignmentCreationBaseState implements AssignmentCreationState {
-  final List<String> availableSubjects;
-
+class AssignmentCreationInitialState implements AssignmentCreationState {
   @override
   final List<File> attachments;
+  final List<String> availableSubjects;
   final Uri? audioRecording;
 
-  AssignmentCreationBaseState(this.availableSubjects, this.attachments, this.audioRecording);
+  AssignmentCreationInitialState({this.availableSubjects = const [], this.attachments = const [], this.audioRecording});
 }
 
 class AssignmentInCreationState implements AssignmentCreationState {
@@ -23,13 +22,6 @@ class AssignmentInCreationState implements AssignmentCreationState {
   final List<File> attachments;
 
   AssignmentInCreationState(this.attachments);
-}
-
-class AssignmentEditPendingState implements AssignmentCreationState {
-  @override
-  final List<File> attachments;
-
-  AssignmentEditPendingState(this.attachments);
 }
 
 class AssignmentCreatedState implements AssignmentCreationState {
@@ -45,4 +37,9 @@ class FileUploadingState implements AssignmentCreationState {
   final List<File> attachments;
 
   FileUploadingState(this.attachments);
+}
+
+class DeletionSuccessfulState implements AssignmentCreationState {
+  @override
+  final attachments = [];
 }
