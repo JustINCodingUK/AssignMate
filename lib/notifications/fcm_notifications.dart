@@ -44,7 +44,16 @@ Future<void> _saveAssignment(String id, AssignmentsRepository assignmentReposito
 }
 
 class FCMNotificationManager {
+  static FCMNotificationManager? _instance;
+
+  FCMNotificationManager._();
+
+  static FCMNotificationManager get() {
+    _instance ??= FCMNotificationManager._();
+    return _instance!;
+  }
   final fcm = FirebaseMessaging.instance;
+  bool _isForegroundRegistered = false;
 
   Future<bool> checkPermission() async {
     final permissionStatus = await fcm.requestPermission();
@@ -58,16 +67,19 @@ class FCMNotificationManager {
   }
 
   void registerForegroundCallback(BuildContext context) {
-    fcm.subscribeToTopic("cs6");
-    FirebaseMessaging.onMessage.listen((message) {
-      _handleFcmPayload(message);
-      if (context.mounted) {
-        try {
-          context.read<AssignmentsBloc>().add(
-            GetAssignmentsEvent(),
-          );
-        } catch (e) {}
-      }
-    });
+    if(!_isForegroundRegistered) {
+      fcm.subscribeToTopic("cs6");
+      FirebaseMessaging.onMessage.listen((message) {
+        _handleFcmPayload(message);
+        if (context.mounted) {
+          try {
+            context.read<AssignmentsBloc>().add(
+              GetAssignmentsEvent(),
+            );
+          } catch (e) {}
+        }
+      });
+      _isForegroundRegistered = true;
+    }
   }
 }
