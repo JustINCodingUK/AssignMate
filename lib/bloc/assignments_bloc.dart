@@ -1,5 +1,6 @@
 import 'package:assignmate/bloc/states/assignment_state.dart';
 import 'package:assignmate/data/assignment_repository.dart';
+import 'package:assignmate/data/reminders_repository.dart';
 import 'package:assignmate/model/assignment.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,11 +8,13 @@ import 'events/assignment_event.dart';
 
 class AssignmentsBloc extends Bloc<AssignmentEvent, AssignmentState> {
   final AssignmentsRepository _assignmentsRepository;
+  final RemindersRepository _remindersRepository;
 
   final _assignments = <Assignment>[];
+  bool _unreadCached = false;
   bool _isPendingMode = true;
 
-  AssignmentsBloc(super.initialState, this._assignmentsRepository) {
+  AssignmentsBloc(super.initialState, this._assignmentsRepository, this._remindersRepository) {
 
     on<AssignmentsInitEvent>((event, emit) async {
       await _assignmentsRepository.refreshAssignments();
@@ -21,9 +24,10 @@ class AssignmentsBloc extends Bloc<AssignmentEvent, AssignmentState> {
     on<GetAssignmentsEvent>((event, emit) async {
       emit(AssignmentsLoadingState());
       final assignments = await _assignmentsRepository.getLocalAssignments();
+      _unreadCached = await _remindersRepository.areRemindersUnread();
       _assignments.clear();
       _assignments.addAll(assignments);
-      emit(AssignmentsLoadedState(_getAssignments()));
+      emit(AssignmentsLoadedState(_getAssignments(), _unreadCached));
     });
 
     on<ModifyAssignmentCompletion>((event, emit) async {
@@ -31,12 +35,12 @@ class AssignmentsBloc extends Bloc<AssignmentEvent, AssignmentState> {
       _assignments.remove(assignment);
       _assignments.add(assignment.copyWith(isCompleted: !assignment.isCompleted));
       await _assignmentsRepository.modifyAssignmentCompletion(assignment);
-      emit(AssignmentsLoadedState(_getAssignments()));
+      emit(AssignmentsLoadedState(_getAssignments(), _unreadCached));
     });
 
     on<SwitchModeEvent>((event, emit) async {
       _isPendingMode = event.isPendingMode;
-      emit(AssignmentsLoadedState(_getAssignments()));
+      emit(AssignmentsLoadedState(_getAssignments(), _unreadCached));
     });
   }
 
