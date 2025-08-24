@@ -64,7 +64,7 @@ class FCMNotificationManager {
       if (context.mounted) {
         try {
           context.read<AssignmentsBloc>().add(
-            GetAssignmentsEvent(pendingOnly: true),
+            GetAssignmentsEvent(),
           );
         } catch (e) {}
       }
