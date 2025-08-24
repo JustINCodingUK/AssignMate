@@ -179,8 +179,8 @@ class _$AssignmentDao extends AssignmentDao {
   final DeletionAdapter<AssignmentEntity> _assignmentEntityDeletionAdapter;
 
   @override
-  Stream<AssignmentEntity?> getAllAssignments() {
-    return _queryAdapter.queryStream('SELECT * FROM AssignmentEntity',
+  Future<List<AssignmentEntity>> getAllAssignments() async {
+    return _queryAdapter.queryList('SELECT * FROM AssignmentEntity',
         mapper: (Map<String, Object?> row) => AssignmentEntity(
             id: row['id'] as String,
             title: row['title'] as String,
@@ -188,9 +188,7 @@ class _$AssignmentDao extends AssignmentDao {
             description: row['description'] as String,
             recordingId: row['recordingId'] as String?,
             dueDate: row['dueDate'] as String,
-            isCompleted: (row['isCompleted'] as int) != 0),
-        queryableName: 'AssignmentEntity',
-        isView: false);
+            isCompleted: (row['isCompleted'] as int) != 0));
   }
 
   @override
@@ -222,6 +220,12 @@ class _$AssignmentDao extends AssignmentDao {
             dueDate: row['dueDate'] as String,
             isCompleted: (row['isCompleted'] as int) != 0),
         arguments: [id]);
+  }
+
+  @override
+  Future<int?> getAssignmentCount() async {
+    return _queryAdapter.query('SELECT COUNT(*) FROM AssignmentEntity',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
   }
 
   @override
