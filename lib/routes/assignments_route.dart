@@ -39,7 +39,9 @@ class AssignmentsRoute extends StatelessWidget {
                     );
                   }
                 },
-                icon: Icon(!isAdmin ? Icons.admin_panel_settings : Icons.logout),
+                icon: Icon(
+                  !isAdmin ? Icons.admin_panel_settings : Icons.logout,
+                ),
               ),
             ],
           ),
@@ -54,8 +56,8 @@ class AssignmentsRoute extends StatelessWidget {
           body: BlocProvider<AssignmentsBloc>(
             create: (context) => AssignmentsBloc(
               AssignmentsLoadingState(),
-              context.read<AssignmentsRepository>()
-            )..add(GetAssignmentsEvent(pendingOnly: false)),
+              context.read<AssignmentsRepository>(),
+            )..add(AssignmentsInitEvent()),
             child: BlocBuilder<AssignmentsBloc, AssignmentState>(
               builder: (context, state) {
                 Widget child = Container();
@@ -73,7 +75,22 @@ class AssignmentsRoute extends StatelessWidget {
                       itemBuilder: (context, index) {
                         return AssignmentCard(
                           assignment: state.assignments[index],
-                          onCompletionMarked: () {},
+                          onCompletionMarked: () {
+                            final assignment = state.assignments[index];
+                            if(!assignment.isCompleted) {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => createCompletionDialog(
+                                    assignment.title,
+                                    assignment.id,
+                                    context,
+                                    ctx
+                                ),
+                              );
+                            } else {
+                              context.read<AssignmentsBloc>().add(ModifyAssignmentCompletion(assignment.id));
+                            }
+                          },
                           onClick: () {
                             final assignment = state.assignments[index];
                             context.push("/details/${assignment.id}");
@@ -91,7 +108,26 @@ class AssignmentsRoute extends StatelessWidget {
                         SizedBox(height: 25),
                         TimedGreeting(),
                         Divider(thickness: 2).padSymmetric(horizontal: 8),
-                        child,
+                        DefaultTabController(
+                          length: 2,
+                          child: Column(
+                            children: [
+                              TabBar(
+                                tabs: [
+                                  Tab(text: "Pending"),
+                                  Tab(text: "Completed"),
+                                ],
+                                onTap: (idx) {
+                                  context.read<AssignmentsBloc>().add(
+                                    SwitchModeEvent(idx == 0),
+                                  );
+                                },
+                              ),
+                              SizedBox(height: 32,),
+                              child,
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -121,6 +157,35 @@ class AssignmentsRoute extends StatelessWidget {
             context.pop();
           },
           child: Text("Logout"),
+        ),
+      ],
+    );
+  }
+
+  AlertDialog createCompletionDialog(
+    String title,
+    String id,
+    BuildContext blocContext,
+    BuildContext dialogContext,
+  ) {
+    return AlertDialog(
+      title: const Text("Mark as Completed"),
+      content: Text("Are you sure you want to mark $title as completed?"),
+      actions: [
+        TextButton(
+          onPressed: () {
+            dialogContext.pop();
+          },
+          child: const Text("No"),
+        ),
+        TextButton(
+          onPressed: () {
+            blocContext.read<AssignmentsBloc>().add(
+              ModifyAssignmentCompletion(id),
+            );
+            dialogContext.pop();
+          },
+          child: const Text("Yes"),
         ),
       ],
     );
