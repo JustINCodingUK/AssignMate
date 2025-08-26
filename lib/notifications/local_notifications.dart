@@ -46,4 +46,8 @@ class LocalNotificationManager {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
+
+  Future<void> cancelNotification(int id) async {
+    await localNotificationsPlugin.cancel(id);
+  }
 }
