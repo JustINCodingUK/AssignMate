@@ -119,6 +119,10 @@ class AssignmentsRepository {
     }
   }
 
+  Future<void> updateLocalAssignment(Assignment newAssignment) async {
+    await db.assignmentDao.updateAssignment(newAssignment.toEntity());
+  }
+
   Future<void> deleteAssignment(String id) async {
     final assignment = await _firestoreClient.getDocument(id);
     for (Attachment attachment in assignment.attachments) {
