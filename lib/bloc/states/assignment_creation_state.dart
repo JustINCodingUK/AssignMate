@@ -38,8 +38,3 @@ class FileUploadingState implements AssignmentCreationState {
 
   FileUploadingState(this.attachments);
 }
-
-class DeletionSuccessfulState implements AssignmentCreationState {
-  @override
-  final attachments = [];
-}
