@@ -150,9 +150,14 @@ class AssignmentsRepository {
     return assignments;
   }
 
-  Future<Assignment> getAssignment(String id) async {
+  Future<Assignment> getLocalAssignmentById(String id) async {
     final assignmentEntity = await db.assignmentDao.getAssignmentById(id);
     final assignment = await assignmentEntity!.toModel(db.attachmentDao);
+    return assignment;
+  }
+
+  Future<Assignment> getFirestoreAssignmentById(String id) async {
+    final assignment = await _firestoreClient.getDocument(id);
     return assignment;
   }
 
