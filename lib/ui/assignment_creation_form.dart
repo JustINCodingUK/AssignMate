@@ -1,3 +1,4 @@
+import 'package:assignmate/bloc/assignment_creation_bloc.dart';
 import 'package:assignmate/bloc/assignment_edit_bloc.dart';
 import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/ext/pad.dart';
@@ -50,7 +51,7 @@ class AssignmentCreationFormState extends State<AssignmentCreationForm> {
   Widget build(BuildContext context) {
     final subjects = widget.isEditMode
         ? context.read<AssignmentEditBloc>().subjects
-        : context.read<AssignmentEditBloc>().subjects;
+        : context.read<AssignmentCreationBloc>().subjects;
 
     return SingleChildScrollView(
       child: Column(
