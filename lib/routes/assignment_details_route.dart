@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../bloc/events/assignment_details_event.dart';
 import '../bloc/states/assignment_details_state.dart';
 
 class AssignmentDetailsRoute extends StatefulWidget {
@@ -23,7 +24,6 @@ class AssignmentDetailsRoute extends StatefulWidget {
 }
 
 class AssignmentDetailsRouteState extends State<AssignmentDetailsRoute> {
-
   @override
   Widget build(BuildContext context) {
     final isAdmin = context.read<AuthBloc>().isAdmin();
@@ -41,7 +41,10 @@ class AssignmentDetailsRouteState extends State<AssignmentDetailsRoute> {
                 ),
 
                 IconButton(
-                  onPressed: () => createDeletionDialog(context),
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (ctx) => createDeletionDialog(context, ctx),
+                  ),
                   icon: Icon(Icons.delete),
                 ),
               ]
@@ -56,8 +59,16 @@ class AssignmentDetailsRouteState extends State<AssignmentDetailsRoute> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
+                Container(
+                  color: Theme.of(context).colorScheme.primary,
+                  height: 128,
+                ),
+
+                SizedBox(height: 16),
+
                 Text(
-                  "Assignment: ${state.assignment.title}",
+                  state.assignment.title,
                   style: Theme.of(context).textTheme.titleLarge,
                 ).pad(16),
 
@@ -69,8 +80,6 @@ class AssignmentDetailsRouteState extends State<AssignmentDetailsRoute> {
                 state.recording != null
                     ? MediaPlayerCard(source: state.recording!.uri)
                     : Container(),
-
-                Divider(thickness: 2).padSymmetric(horizontal: 8, vertical: 16),
 
                 Text(
                   "Attachments",
@@ -112,7 +121,7 @@ class AssignmentDetailsRouteState extends State<AssignmentDetailsRoute> {
     );
   }
 
-  AlertDialog createDeletionDialog(BuildContext context) {
+  AlertDialog createDeletionDialog(BuildContext blocContext, BuildContext dialogContext) {
     return AlertDialog(
       title: const Text("Delete Assignment"),
       content: const Text(
@@ -121,16 +130,16 @@ class AssignmentDetailsRouteState extends State<AssignmentDetailsRoute> {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(dialogContext).pop();
           },
           child: const Text("Cancel"),
         ),
         TextButton(
           onPressed: () {
-            context.read<AssignmentCreationBloc>().add(
+            blocContext.read<AssignmentDetailsBloc>().add(
               DeleteAssignmentEvent(id: widget.assignmentId),
             );
-            Navigator.of(context).pop();
+            Navigator.of(dialogContext).pop();
             context.pop();
           },
           child: const Text("Delete"),

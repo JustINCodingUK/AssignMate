@@ -38,14 +38,19 @@ class RemindersRoute extends StatelessWidget {
         body: BlocBuilder<RemindersBloc, RemindersState>(
           builder: (context, state) {
             if (state is RemindersLoadedState) {
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: state.reminders.length,
-                itemBuilder: (context, index) {
-                  final reminder = state.reminders[index];
-                  return ReminderTile(reminder: reminder);
-                },
-              );
+              if(state.reminders.isEmpty) {
+                return Center(
+                  child: Text("No reminders for now!"),
+                );
+              } else {
+                return ListView.builder(
+                  itemCount: state.reminders.length,
+                  itemBuilder: (context, index) {
+                    final reminder = state.reminders[index];
+                    return ReminderTile(reminder: reminder);
+                  },
+                );
+              }
             } else {
               return Center(child: CircularProgressIndicator());
             }
