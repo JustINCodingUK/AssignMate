@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:assignmate/bloc/assignments_bloc.dart';
 import 'package:assignmate/bloc/events/assignment_event.dart';
 import 'package:assignmate/data/assignment_repository.dart';
@@ -16,9 +18,11 @@ Future<void> _handleFcmPayload(RemoteMessage message) async {
   final db = await getDatabase();
 
   final payload = message.data;
-
-  if(payload["action"]=="reminder") {
-    final reminderRepository = RemindersRepository(db: db, firestoreClient: FirestoreClient());
+  if (payload["action"] == "reminder") {
+    final reminderRepository = RemindersRepository(
+      db: db,
+      firestoreClient: FirestoreClient(),
+    );
     await reminderRepository.saveReminder(payload["id"]);
   } else {
     final attachmentRepository = AttachmentRepository(
@@ -31,16 +35,22 @@ Future<void> _handleFcmPayload(RemoteMessage message) async {
       db,
     );
 
-    switch(payload["action"]) {
-      case "create": await _saveAssignment(payload["id"], assignmentRepository);
-      case "edit": await _editAssignment(payload["id"], assignmentRepository);
-      case "delete": await _deleteAssignment(payload["id"], assignmentRepository);
+    switch (payload["action"]) {
+      case "create":
+        await _saveAssignment(payload["id"], assignmentRepository);
+      case "edit":
+        await _editAssignment(payload["id"], assignmentRepository);
+      case "delete":
+        await _deleteAssignment(payload["id"], assignmentRepository);
     }
   }
 }
 
-Future<void> _saveAssignment(String id, AssignmentsRepository assignmentRepository) async {
-  final assignment = await assignmentRepository.getAssignment(id);
+Future<void> _saveAssignment(
+  String id,
+  AssignmentsRepository assignmentRepository,
+) async {
+  final assignment = await assignmentRepository.getFirestoreAssignmentById(id);
 
   await assignmentRepository.saveAssignment(assignment);
   final localNotificationManager = await LocalNotificationManager.get();
@@ -52,9 +62,13 @@ Future<void> _saveAssignment(String id, AssignmentsRepository assignmentReposito
   );
 }
 
-Future<void> _editAssignment(String id, AssignmentsRepository assignmentRepository) async {
-  final updatedAssignment = await assignmentRepository.getAssignment(id);
-  
+Future<void> _editAssignment(
+  String id,
+  AssignmentsRepository assignmentRepository,
+) async {
+  final updatedAssignment = await assignmentRepository
+      .getFirestoreAssignmentById(id);
+
   await assignmentRepository.updateLocalAssignment(updatedAssignment);
 
   final localNotificationManager = await LocalNotificationManager.get();
@@ -66,7 +80,10 @@ Future<void> _editAssignment(String id, AssignmentsRepository assignmentReposito
   );
 }
 
-Future<void> _deleteAssignment(String id, AssignmentsRepository assignmentRepository) async {
+Future<void> _deleteAssignment(
+  String id,
+  AssignmentsRepository assignmentRepository,
+) async {
   await assignmentRepository.deleteAssignment(id);
   final localNotificationManager = await LocalNotificationManager.get();
   await localNotificationManager.cancelNotification(id.hashCode & 0x7FFFFFFF);
@@ -81,6 +98,7 @@ class FCMNotificationManager {
     _instance ??= FCMNotificationManager._();
     return _instance!;
   }
+
   final fcm = FirebaseMessaging.instance;
   bool _isForegroundRegistered = false;
 
@@ -96,15 +114,13 @@ class FCMNotificationManager {
   }
 
   void registerForegroundCallback(BuildContext context) {
-    if(!_isForegroundRegistered) {
+    if (!_isForegroundRegistered) {
       fcm.subscribeToTopic("cs6");
       FirebaseMessaging.onMessage.listen((message) {
         _handleFcmPayload(message);
         if (context.mounted) {
           try {
-            context.read<AssignmentsBloc>().add(
-              GetAssignmentsEvent(),
-            );
+            context.read<AssignmentsBloc>().add(GetAssignmentsEvent());
           } catch (e) {}
         }
       });
