@@ -82,7 +82,7 @@ class FirestoreClient<T extends FirestoreDocument> {
         id: data["id"],
         title: data["title"],
         subject: data["subject"],
-        dueDate: DateTime.parse(data["dueDate"]),
+        dueDate: (data["dueDate"] as String).asDate(),
         attachments: attachmentRefs,
       )
       as T;

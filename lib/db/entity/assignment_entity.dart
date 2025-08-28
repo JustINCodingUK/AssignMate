@@ -36,7 +36,7 @@ extension EntityToModel on AssignmentEntity {
       final recordingAttachment = await dao.findAttachmentById(recordingId!);
       recording = recordingAttachment?.toModel();
     }
-    final splitDate = dueDate.split("-");
+    final splitDate = dueDate.split("/");
     return Assignment(
       id: id,
       title: title,
