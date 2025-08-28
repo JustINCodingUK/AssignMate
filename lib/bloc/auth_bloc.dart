@@ -15,6 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc() : super(AuthBaseState()) {
     on<AuthStartedEvent>((event, emit) async {
+      emit(AuthLoadingState());
       final result = await googleApiClient.signIn();
       if (result is Success) {
         _isAdmin = true;
