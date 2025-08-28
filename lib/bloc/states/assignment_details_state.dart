@@ -32,3 +32,5 @@ class FileDownloadingState implements AssignmentDetailsLoadedState {
 
   FileDownloadingState(this.assignment, {this.recording, required this.loadingId});
 }
+
+class DeletionSuccessfulState implements AssignmentDetailsState {}
