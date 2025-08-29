@@ -36,9 +36,3 @@ class AddRecordingEvent implements AssignmentCreationEvent {
 }
 
 class RemoveRecordingEvent implements AssignmentCreationEvent {}
-
-class DeleteAssignmentEvent implements AssignmentCreationEvent {
-  final String id;
-
-  DeleteAssignmentEvent({required this.id});
-}

@@ -10,3 +10,4 @@ key.properties
 app/key.properties
 **/*.keystore
 **/*.jks
+/build/reports/problems/problems-report.html

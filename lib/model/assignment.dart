@@ -32,7 +32,7 @@ class Assignment implements FirestoreDocument {
       "id": id,
       "title": title,
       "subject": subject,
-      "dueDate": dueDate.toIso8601String(),
+      "dueDate": dueDate.date(),
       "description": description,
       "isCompleted": isCompleted,
       "recording": recording?.uri.toString(),

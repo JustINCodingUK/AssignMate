@@ -76,13 +76,15 @@ class _$AppDatabase extends AppDatabase {
 
   AttachmentDao? _attachmentDaoInstance;
 
+  RemindersDao? _reminderDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -101,6 +103,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `AssignmentEntity` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `subject` TEXT NOT NULL, `description` TEXT NOT NULL, `recordingId` TEXT, `dueDate` TEXT NOT NULL, `isCompleted` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `AttachmentEntity` (`id` TEXT NOT NULL, `assignmentId` TEXT NOT NULL, `driveFileId` TEXT NOT NULL, `filename` TEXT NOT NULL, `uri` TEXT NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `ReminderEntity` (`id` TEXT NOT NULL, `content` TEXT NOT NULL, `isRead` INTEGER NOT NULL, `creationDate` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -116,6 +120,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   AttachmentDao get attachmentDao {
     return _attachmentDaoInstance ??= _$AttachmentDao(database, changeListener);
+  }
+
+  @override
+  RemindersDao get reminderDao {
+    return _reminderDaoInstance ??= _$RemindersDao(database, changeListener);
   }
 }
 
@@ -337,5 +346,75 @@ class _$AttachmentDao extends AttachmentDao {
   @override
   Future<void> deleteAttachment(AttachmentEntity attachment) async {
     await _attachmentEntityDeletionAdapter.delete(attachment);
+  }
+}
+
+class _$RemindersDao extends RemindersDao {
+  _$RemindersDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _reminderEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'ReminderEntity',
+            (ReminderEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'content': item.content,
+                  'isRead': item.isRead ? 1 : 0,
+                  'creationDate': item.creationDate
+                }),
+        _reminderEntityDeletionAdapter = DeletionAdapter(
+            database,
+            'ReminderEntity',
+            ['id'],
+            (ReminderEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'content': item.content,
+                  'isRead': item.isRead ? 1 : 0,
+                  'creationDate': item.creationDate
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<ReminderEntity> _reminderEntityInsertionAdapter;
+
+  final DeletionAdapter<ReminderEntity> _reminderEntityDeletionAdapter;
+
+  @override
+  Future<List<ReminderEntity>> getReminders() async {
+    return _queryAdapter.queryList('SELECT * FROM ReminderEntity',
+        mapper: (Map<String, Object?> row) => ReminderEntity(
+            id: row['id'] as String,
+            content: row['content'] as String,
+            isRead: (row['isRead'] as int) != 0,
+            creationDate: row['creationDate'] as String));
+  }
+
+  @override
+  Future<int?> getUnreadRemindersCount() async {
+    return _queryAdapter.query(
+        'SELECT COUNT(*) FROM ReminderEntity WHERE isRead = 0',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
+  Future<void> markAllAsRead() async {
+    await _queryAdapter
+        .queryNoReturn('UPDATE ReminderEntity SET isRead = 1 WHERE isRead = 0');
+  }
+
+  @override
+  Future<void> insertReminder(ReminderEntity reminder) async {
+    await _reminderEntityInsertionAdapter.insert(
+        reminder, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteReminder(ReminderEntity reminder) async {
+    await _reminderEntityDeletionAdapter.delete(reminder);
   }
 }

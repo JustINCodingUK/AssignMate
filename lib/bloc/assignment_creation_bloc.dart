@@ -84,10 +84,5 @@ class AssignmentCreationBloc
 
       emit(AssignmentCreatedState(assignment, _attachments));
     });
-
-    on<DeleteAssignmentEvent>((event, emit) async {
-      await _assignmentsRepository.deleteAssignment(event.id);
-      emit(DeletionSuccessfulState());
-    });
   }
 }

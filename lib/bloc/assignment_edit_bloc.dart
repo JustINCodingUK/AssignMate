@@ -22,7 +22,7 @@ class AssignmentEditBloc
     : super(AssignmentLoadingState()) {
     on<BeginAssignmentEditEvent>((event, emit) async {
       emit(AssignmentLoadingState());
-      final assignment = await _assignmentsRepository.getAssignment(
+      final assignment = await _assignmentsRepository.getLocalAssignmentById(
         event.assignmentId,
       );
       if (assignment.recording != null) {

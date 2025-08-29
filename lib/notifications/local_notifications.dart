@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
 
 class LocalNotificationManager {
@@ -6,6 +7,7 @@ class LocalNotificationManager {
   static LocalNotificationManager? _instance;
   static Future<LocalNotificationManager> get() async {
     if(_instance == null) {
+      initializeTimeZones();
       _instance = LocalNotificationManager._();
       _instance!.localNotificationsPlugin = FlutterLocalNotificationsPlugin();
       const androidSettings = AndroidInitializationSettings(
@@ -13,7 +15,6 @@ class LocalNotificationManager {
       );
       const settings = InitializationSettings(android: androidSettings);
       await _instance!.localNotificationsPlugin.initialize(settings);
-      _instance = LocalNotificationManager._();
     }
     return _instance!;
   }
@@ -43,7 +44,11 @@ class LocalNotificationManager {
       body,
       TZDateTime.now(local).add(time.difference(DateTime.now())),
       notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
+  }
+
+  Future<void> cancelNotification(int id) async {
+    await localNotificationsPlugin.cancel(id);
   }
 }
