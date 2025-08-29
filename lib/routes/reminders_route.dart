@@ -27,8 +27,8 @@ class RemindersRoute extends StatelessWidget {
                 ? IconButton(
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (context) =>
-                          createNewReminderAlertDialog(context),
+                      builder: (ctx) =>
+                          createNewReminderAlertDialog(context, ctx),
                     ),
                     icon: Icon(Icons.add),
                   )
@@ -38,11 +38,10 @@ class RemindersRoute extends StatelessWidget {
         body: BlocBuilder<RemindersBloc, RemindersState>(
           builder: (context, state) {
             if (state is RemindersLoadedState) {
-              if(state.reminders.isEmpty) {
-                return Center(
-                  child: Text("No reminders for now!"),
-                );
+              if (state.reminders.isEmpty) {
+                return Center(child: Text("No reminders for now!"));
               } else {
+                context.read<RemindersBloc>().add(ReadRemindersEvent());
                 return ListView.builder(
                   itemCount: state.reminders.length,
                   itemBuilder: (context, index) {
@@ -60,7 +59,10 @@ class RemindersRoute extends StatelessWidget {
     );
   }
 
-  AlertDialog createNewReminderAlertDialog(BuildContext context) {
+  AlertDialog createNewReminderAlertDialog(
+    BuildContext blocContext,
+    BuildContext dialogContext,
+  ) {
     final TextEditingController reminderController = TextEditingController();
 
     return AlertDialog(
@@ -76,7 +78,7 @@ class RemindersRoute extends StatelessWidget {
         TextButton(
           child: Text("Cancel"),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(dialogContext).pop();
           },
         ),
         TextButton(
@@ -84,10 +86,10 @@ class RemindersRoute extends StatelessWidget {
           onPressed: () {
             final reminderText = reminderController.text;
             if (reminderText.isNotEmpty) {
-              context.read<RemindersBloc>().add(
+              blocContext.read<RemindersBloc>().add(
                 CreateReminderEvent(reminderText),
               );
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
             }
           },
         ),
