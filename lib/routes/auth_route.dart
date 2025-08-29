@@ -53,7 +53,7 @@ class AuthRoute extends StatelessWidget {
               builder: (context) {
                 return AlertDialog(
                   title: Text("AssignMate Admin"),
-                  content: Row(
+                  content: Column(
                     children: [
                       Icon(Icons.check).padSymmetric(horizontal: 16),
                       SizedBox(width: 16.0),
@@ -87,6 +87,12 @@ class AuthRoute extends StatelessWidget {
                   ),
                 );
               },
+            );
+          } else if (state is AuthLoadingState) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => Center(child: CircularProgressIndicator()),
             );
           }
         },
