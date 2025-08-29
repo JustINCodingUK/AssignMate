@@ -116,8 +116,8 @@ class FCMNotificationManager {
   void registerForegroundCallback(BuildContext context) {
     if (!_isForegroundRegistered) {
       fcm.subscribeToTopic("cs6");
-      FirebaseMessaging.onMessage.listen((message) {
-        _handleFcmPayload(message);
+      FirebaseMessaging.onMessage.listen((message) async {
+        await _handleFcmPayload(message);
         if (context.mounted) {
           try {
             context.read<AssignmentsBloc>().add(GetAssignmentsEvent());
