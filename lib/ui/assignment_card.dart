@@ -4,96 +4,95 @@ import 'package:flutter/material.dart';
 
 import '../model/assignment.dart';
 
-@Preview(name: "Assignment Card")
 class AssignmentCard extends StatelessWidget {
   final Assignment assignment;
   final void Function() onCompletionMarked;
   final void Function() onClick;
 
-  const AssignmentCard({
+  const AssignmentCard(
+    this.assignment, {
     super.key,
-    required this.assignment,
-    required this.onCompletionMarked,
     required this.onClick,
+    required this.onCompletionMarked,
   });
 
   @override
   Widget build(BuildContext context) {
     final buttonLabel = assignment.isCompleted
-        ? "Mark\nIncomplete"
-        : "Mark\nComplete";
+        ? "Mark Incomplete"
+        : "Mark Complete";
 
-    return Card.filled(
+    return Card(
       shape: !assignment.isCompleted
           ? RoundedRectangleBorder(
               side: BorderSide(
                 color: Theme.of(context).colorScheme.primary,
-                width: 4,
+                width: 2,
               ),
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(16),
             )
-          : RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-      elevation: 16,
+          : RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         onTap: onClick,
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded),
+                    SizedBox(width: 8),
+                    Text(
+                      "Due: ${assignment.dueDate.date()}",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+                Chip(
+                  label: Text(
                     assignment.subject,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-
-                  SizedBox(height: 16),
-
-                  Text(
-                    assignment.title,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-
-                  SizedBox(height: 16),
-
-                  Text("Due", style: Theme.of(context).textTheme.bodyMedium),
-
-                  SizedBox(height: 8),
-
-                  Text(
-                    assignment.dueDate.date(),
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  SizedBox(height: 16),
-
-                  Text("Files", style: Theme.of(context).textTheme.bodyMedium),
-
-                  Text(
-                    assignment.attachments.length.toString(),
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ).pad(16),
+                ),
+              ],
             ),
-
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: ElevatedButton(
-                onPressed: onCompletionMarked,
-                child: Text(buttonLabel, textAlign: TextAlign.center).pad(8),
-              ).pad(16),
+            SizedBox(height: 8),
+            Text(
+              assignment.title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.attachment),
+                    SizedBox(width: 8),
+                    Text(
+                      "${assignment.attachments.length} Attachments",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+                FilledButton(
+                  onPressed: onCompletionMarked,
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    )
+                  ),
+                  child: Text(buttonLabel)
+                ),
+              ],
             ),
           ],
-        ).pad(8),
+        ).pad(16),
       ),
-    );
+    ).pad(8);
   }
 }

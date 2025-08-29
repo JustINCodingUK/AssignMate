@@ -38,10 +38,15 @@ class AssignmentsRoute extends StatelessWidget {
               if (state is AssignmentsLoadedState) {
                 return Scaffold(
                   appBar: AppBar(
-                    title: Text("AssignMate: $section"),
+                    title: Text(
+                      "AssignMate: $section",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     actions: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context.push("/reminders");
+                        },
                         icon: ReminderIcon(isUnread: state.areRemindersUnread),
                       ),
                       IconButton(
@@ -66,6 +71,7 @@ class AssignmentsRoute extends StatelessWidget {
                           onPressed: () {
                             context.push("/create");
                           },
+                          isExtended: true,
                           child: Icon(Icons.add),
                         )
                       : null,
@@ -152,7 +158,7 @@ class AssignmentsRoute extends StatelessWidget {
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 return AssignmentCard(
-                  assignment: state.assignments[index],
+                  state.assignments[index],
                   onCompletionMarked: () {
                     final assignment = state.assignments[index];
                     if (!assignment.isCompleted) {
@@ -184,6 +190,7 @@ class AssignmentsRoute extends StatelessWidget {
         return Expanded(
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 25),
                 TimedGreeting(),
