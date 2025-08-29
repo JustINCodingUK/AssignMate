@@ -3,6 +3,7 @@ import 'package:assignmate/bloc/assignment_details_bloc.dart';
 import 'package:assignmate/bloc/assignment_edit_bloc.dart';
 import 'package:assignmate/bloc/events/assignment_details_event.dart';
 import 'package:assignmate/bloc/events/assignment_edit_event.dart';
+import 'package:assignmate/bloc/reminders_bloc.dart';
 import 'package:assignmate/bloc/states/assignment_creation_state.dart';
 import 'package:assignmate/data/assignment_repository.dart';
 import 'package:assignmate/routes/assignment_creation_route.dart';
@@ -10,6 +11,7 @@ import 'package:assignmate/routes/assignment_details_route.dart';
 import 'package:assignmate/routes/assignment_edit_route.dart';
 import 'package:assignmate/routes/assignments_route.dart';
 import 'package:assignmate/routes/auth_route.dart';
+import 'package:assignmate/routes/reminders_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +20,7 @@ enum Routes {
   home,
   create,
   details,
+  reminders,
   edit;
 
   String route({String arg = ""}) {
@@ -32,6 +35,8 @@ enum Routes {
         return "/details/$arg";
       case Routes.edit:
         return "/edit/$arg";
+      case Routes.reminders:
+        return "/reminders";
     }
   }
 }
@@ -84,5 +89,12 @@ final router = GoRouter(
         );
       },
     ),
+    GoRoute(
+      path: "/reminders",
+      builder: (context, state) => BlocProvider<RemindersBloc>(
+          create: (context) => RemindersBloc(context.read()),
+          child: RemindersRoute(),
+      )
+    )
   ],
 );

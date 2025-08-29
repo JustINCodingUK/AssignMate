@@ -15,7 +15,7 @@ class AssignmentDetailsBloc
   AssignmentDetailsBloc(this._assignmentsRepository) : super(AssignmentDetailsLoadingState()) {
     on<GetAssignmentEvent>((event, emit) async {
       emit(AssignmentDetailsLoadingState());
-      _assignment = await _assignmentsRepository.getAssignment(event.id);
+      _assignment = await _assignmentsRepository.getLocalAssignmentById(event.id);
       if(_assignment.recording!=null) {
         _recording = await _assignmentsRepository.getAttachment(_assignment.recording!);
       }
@@ -27,6 +27,11 @@ class AssignmentDetailsBloc
       final attachment = _assignment.attachments.where((e) => e.id == event.id);
       final file = await _assignmentsRepository.getAttachment(attachment.first);
       emit(FileDownloadedState(file, _assignment, recording: _recording));
+    });
+
+    on<DeleteAssignmentEvent>((event, emit) async {
+      await _assignmentsRepository.deleteAssignment(event.id);
+      emit(DeletionSuccessfulState());
     });
   }
 }

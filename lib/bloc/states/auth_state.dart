@@ -13,3 +13,5 @@ class AuthFailedState implements AuthState {
 
   AuthFailedState(this.message);
 }
+
+class AuthLoadingState implements AuthState {}

@@ -36,17 +36,14 @@ class TimedGreeting extends StatelessWidget {
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           "Good $time",
-          style: Theme.of(context).textTheme.displayMedium,
-          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.start,
         ).pad(16),
-        Text(
-          affirmation,
-          style: Theme.of(context).textTheme.bodyMedium,
-          textAlign: TextAlign.center,
-        ).padSymmetric(horizontal: 16, vertical: 4),
+        Text(affirmation).padSymmetric(vertical: 8, horizontal: 16)
       ],
     );
   }

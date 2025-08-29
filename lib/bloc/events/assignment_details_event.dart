@@ -11,3 +11,9 @@ class DownloadFileEvent implements AssignmentDetailsEvent {
 
   DownloadFileEvent(this.id);
 }
+
+class DeleteAssignmentEvent implements AssignmentDetailsEvent {
+  final String id;
+
+  DeleteAssignmentEvent({required this.id});
+}
