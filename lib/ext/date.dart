@@ -2,6 +2,13 @@ extension Date on DateTime {
   String date() {
     return "$day/$month/$year";
   }
+
+  bool isTomorrowOrToday() {
+    final tomorrow = DateTime.now().add(Duration(days: 1));
+    final today = DateTime.now();
+    return (day == tomorrow.day && month == tomorrow.month && year == tomorrow.year) ||
+        (day == today.day && month == today.month && year == today.year);
+  }
 }
 
 extension ToDate on String {

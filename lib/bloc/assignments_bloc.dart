@@ -1,6 +1,7 @@
 import 'package:assignmate/bloc/states/assignment_state.dart';
 import 'package:assignmate/data/assignment_repository.dart';
 import 'package:assignmate/data/reminders_repository.dart';
+import 'package:assignmate/ext/date_sort.dart';
 import 'package:assignmate/model/assignment.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -45,6 +46,7 @@ class AssignmentsBloc extends Bloc<AssignmentEvent, AssignmentState> {
   }
 
   List<Assignment> _getAssignments() {
+    _assignments.sortByDate();
     if(_isPendingMode) {
       return _assignments.where((it) => !it.isCompleted).toList();
     } else {
