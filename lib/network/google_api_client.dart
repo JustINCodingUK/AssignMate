@@ -119,7 +119,7 @@ class GoogleApiClient {
       uploadedFile.id!,
     );
 
-    final uri = Uri(path: uploadedFile.webViewLink);
+    final uri = Uri.parse(uploadedFile.webViewLink!);
 
     return Attachment(
       id: "0",
