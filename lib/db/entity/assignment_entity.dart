@@ -1,5 +1,6 @@
 import 'package:assignmate/db/dao/attachment_dao.dart';
 import 'package:assignmate/db/entity/attachment_entity.dart';
+import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/model/attachment.dart';
 import 'package:floor/floor.dart';
 
@@ -36,13 +37,13 @@ extension EntityToModel on AssignmentEntity {
       final recordingAttachment = await dao.findAttachmentById(recordingId!);
       recording = recordingAttachment?.toModel();
     }
-    final splitDate = dueDate.split("/");
+
     return Assignment(
       id: id,
       title: title,
       subject: subject,
       description: description,
-      dueDate: DateTime(int.parse(splitDate[0]), int.parse(splitDate[1]), int.parse(splitDate[2])),
+      dueDate: dueDate.asDate(),
       recording: recording,
       attachments: attachments.map((it) => it.toModel()).toList(),
       isCompleted: isCompleted

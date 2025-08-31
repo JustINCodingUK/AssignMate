@@ -30,7 +30,7 @@ class AssignmentDetailsBloc
     });
 
     on<DeleteAssignmentEvent>((event, emit) async {
-      await _assignmentsRepository.deleteAssignment(event.id);
+      await _assignmentsRepository.deleteAssignment(_assignment);
       emit(DeletionSuccessfulState());
     });
   }

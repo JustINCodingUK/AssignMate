@@ -15,8 +15,7 @@ class RemindersRepository {
     await db.reminderDao.insertReminder(newReminder.toEntity());
   }
 
-  Future<void> saveReminder(String id) async {
-    final reminder = await firestoreClient.getDocument(id);
+  Future<void> saveReminder(Reminder reminder) async {
     await db.reminderDao.insertReminder(reminder.toEntity());
   }
 

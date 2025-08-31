@@ -18,6 +18,7 @@ class AssignmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final urgent = assignment.dueDate.isTomorrowOrToday();
     final buttonLabel = assignment.isCompleted
         ? "Mark Incomplete"
         : "Mark Complete";
@@ -26,7 +27,7 @@ class AssignmentCard extends StatelessWidget {
       shape: !assignment.isCompleted
           ? RoundedRectangleBorder(
               side: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
+                color: urgent ? Colors.orange : Theme.of(context).colorScheme.primary,
                 width: 2,
               ),
               borderRadius: BorderRadius.circular(16),

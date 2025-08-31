@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:assignmate/bloc/auth_bloc.dart';
 import 'package:assignmate/bloc/events/auth_event.dart';
 import 'package:assignmate/data/assignment_repository.dart';
@@ -19,9 +21,6 @@ import 'data/reminders_repository.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity
-  );
   final appDb = await getDatabase();
 
   final fcmNotificationManager = FCMNotificationManager.get();

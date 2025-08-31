@@ -6,17 +6,22 @@ import 'package:assignmate/data/assignment_repository.dart';
 import 'package:assignmate/data/attachment_repository.dart';
 import 'package:assignmate/data/reminders_repository.dart';
 import 'package:assignmate/db/database.dart';
-import 'package:assignmate/model/reminder.dart';
 import 'package:assignmate/network/firestore_client.dart';
 import 'package:assignmate/network/google_api_client.dart';
 import 'package:assignmate/notifications/local_notifications.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-Future<void> _handleFcmPayload(RemoteMessage message) async {
-  final db = await getDatabase();
+@pragma("vm:entry-point")
+Future<void> _handleBackgroundPayload(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  await _handlePayload(message);
+}
 
+Future<void> _handlePayload(RemoteMessage message) async {
+  final db = await getDatabase();
   final payload = message.data;
   if (payload["action"] == "reminder") {
     final reminderRepository = RemindersRepository(
@@ -56,7 +61,7 @@ Future<void> _saveAssignment(
   final localNotificationManager = await LocalNotificationManager.get();
   await localNotificationManager.scheduleNotification(
     assignment.id.hashCode & 0x7FFFFFFF,
-    "New Assignment",
+    "Assignment Due Tomorrow",
     assignment.title,
     assignment.dueDate,
   );
@@ -74,7 +79,7 @@ Future<void> _editAssignment(
   final localNotificationManager = await LocalNotificationManager.get();
   await localNotificationManager.scheduleNotification(
     updatedAssignment.id.hashCode & 0x7FFFFFFF,
-    "New Assignment",
+    "Assignment Due Tomorrow",
     updatedAssignment.title,
     updatedAssignment.dueDate,
   );
@@ -84,7 +89,7 @@ Future<void> _deleteAssignment(
   String id,
   AssignmentsRepository assignmentRepository,
 ) async {
-  await assignmentRepository.deleteAssignment(id);
+  await assignmentRepository.deleteLocalAssignment(id);
   final localNotificationManager = await LocalNotificationManager.get();
   await localNotificationManager.cancelNotification(id.hashCode & 0x7FFFFFFF);
 }
@@ -110,14 +115,14 @@ class FCMNotificationManager {
 
   void registerBackgroundCallback() {
     fcm.subscribeToTopic("cs6");
-    FirebaseMessaging.onBackgroundMessage(_handleFcmPayload);
+    FirebaseMessaging.onBackgroundMessage(_handleBackgroundPayload);
   }
 
   void registerForegroundCallback(BuildContext context) {
     if (!_isForegroundRegistered) {
       fcm.subscribeToTopic("cs6");
       FirebaseMessaging.onMessage.listen((message) async {
-        await _handleFcmPayload(message);
+        await _handlePayload(message);
         if (context.mounted) {
           try {
             context.read<AssignmentsBloc>().add(GetAssignmentsEvent());

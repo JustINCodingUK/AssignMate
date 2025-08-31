@@ -46,6 +46,7 @@ class AssignmentsRoute extends StatelessWidget {
                       IconButton(
                         onPressed: () {
                           context.push("/reminders");
+                          context.read<AssignmentsBloc>().add(GetAssignmentsEvent());
                         },
                         icon: ReminderIcon(isUnread: state.areRemindersUnread),
                       ),
