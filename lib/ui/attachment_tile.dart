@@ -25,7 +25,10 @@ class AttachmentTile extends StatelessWidget {
                 children: [
                   Icon(Icons.file_open),
                   SizedBox(width: 8),
-                  Text(name, style: Theme.of(context).textTheme.bodyLarge)
+                  SizedBox(
+                    width: 250,
+                    child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
+                  )
                 ],
               ).pad(16),
               IconButton(

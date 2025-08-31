@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:assignmate/model/attachment.dart';
@@ -19,12 +20,12 @@ class GoogleApiClient {
   Future<AuthResult> trySignIn() async {
     await GoogleSignIn.instance.initialize();
     if (firebaseAuth.currentUser == null) {
-      return GenericFailure();
+      return GenericFailure(Exception());
     } else {
       final user = await GoogleSignIn.instance
           .attemptLightweightAuthentication();
       if (user == null) {
-        return GenericFailure();
+        return GenericFailure(Exception());
       } else {
         final authorization = await user.authorizationClient.authorizeScopes(
           _scopes,
@@ -44,11 +45,8 @@ class GoogleApiClient {
     final googleSignIn = GoogleSignIn.instance;
 
     GoogleSignInAccount? account;
-    try {
-      account = await googleSignIn.authenticate(scopeHint: _scopes);
-    } catch (e) {
-      return GenericFailure();
-    }
+
+    account = await googleSignIn.authenticate(scopeHint: _scopes);
 
     final allowedAccounts = await firestore
         .collection("admin")
@@ -71,11 +69,8 @@ class GoogleApiClient {
     final driveClient = authorization?.authClient(scopes: _scopes);
     _driveApi = drive.DriveApi(driveClient!);
 
-    if (authResult.user == null) {
-      return GenericFailure();
-    } else {
-      return Success(authResult.user!.email!, authResult.user!.displayName!);
-    }
+    return Success(authResult.user!.email!, authResult.user!.displayName!);
+
   }
 
   Future<void> signOut() async {
@@ -169,7 +164,9 @@ class GoogleApiClient {
   }
 
   Future<void> deleteFile(String fileId) async {
-    await _driveApi.files.delete(fileId);
+    try {
+      await _driveApi.files.delete(fileId);
+    } catch(e) {}
   }
 
   Future<void> renameFolder(String oldName, String newName) async {
@@ -232,4 +229,7 @@ class Success extends AuthResult {
 
 class NoAdminFailure extends AuthResult {}
 
-class GenericFailure extends AuthResult {}
+class GenericFailure extends AuthResult {
+  final Exception exception;
+  GenericFailure(this.exception);
+}

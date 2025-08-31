@@ -50,21 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDXAvcCWPSo_-o_qgj7Z4f4JMggp6DMwd0',
-    appId: '1:731983346773:android:6bda815c1022635f30e8dc',
-    messagingSenderId: '731983346773',
-    projectId: 'assignmate-29d27',
-    storageBucket: 'assignmate-29d27.firebasestorage.app',
+    apiKey: 'AIzaSyAG5pAUfQypqFBW9Oj2y0CRmQptZHBnEuc',
+    appId: '1:377457284475:android:614bc256eb0279e173d9de',
+    messagingSenderId: '377457284475',
+    projectId: 'assignmatebackend',
+    storageBucket: 'assignmatebackend.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAPA_cs53Ffu5YiIPpIHyHLWwuFBqhtdm4',
-    appId: '1:731983346773:ios:b34e2fa6c6b1c8f330e8dc',
-    messagingSenderId: '731983346773',
-    projectId: 'assignmate-29d27',
-    storageBucket: 'assignmate-29d27.firebasestorage.app',
-    androidClientId: '731983346773-iaom4ei5jb5udgsqc0sirjj1jgo1gu1v.apps.googleusercontent.com',
-    iosClientId: '731983346773-2dr474ara81edk28neh4fob3v6gketfo.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAmbZJxlpeiCpxW7IS8T3l5rJibtIJlWGA',
+    appId: '1:377457284475:ios:4eb16709bb4e699973d9de',
+    messagingSenderId: '377457284475',
+    projectId: 'assignmatebackend',
+    storageBucket: 'assignmatebackend.firebasestorage.app',
+    androidClientId: '377457284475-0sjjg4pfnrql6tlf6mm5j1anh203hmb8.apps.googleusercontent.com',
+    iosClientId: '377457284475-gngs836jph5o536aat21bvss50hemc4t.apps.googleusercontent.com',
     iosBundleId: 'io.github.justincodinguk.assignmate',
   );
 

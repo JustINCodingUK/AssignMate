@@ -21,6 +21,7 @@ import 'data/reminders_repository.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAppCheck.instance.activate();
   final appDb = await getDatabase();
 
   final fcmNotificationManager = FCMNotificationManager.get();

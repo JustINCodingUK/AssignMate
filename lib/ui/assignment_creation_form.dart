@@ -96,6 +96,8 @@ class AssignmentCreationFormState extends State<AssignmentCreationForm> {
 
           TextField(
             controller: widget._descriptionController,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
             decoration: InputDecoration(
               labelText: "Description",
               prefixIcon: Icon(Icons.description),
