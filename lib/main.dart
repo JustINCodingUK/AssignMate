@@ -28,13 +28,13 @@ void main() async {
   await fcmNotificationManager.checkPermission();
   fcmNotificationManager.registerBackgroundCallback();
 
-  runApp(AssignmateApplication(db: appDb));
+  runApp(AssignMateApplication(db: appDb));
 }
 
-class AssignmateApplication extends StatelessWidget {
+class AssignMateApplication extends StatelessWidget {
   final AppDatabase db;
 
-  const AssignmateApplication({
+  const AssignMateApplication({
     super.key,
     required this.db
   });
