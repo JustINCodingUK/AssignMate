@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 class GoogleApiClient {
-  late final drive.DriveApi _driveApi;
+  late drive.DriveApi _driveApi;
   final _scopes = ['email', drive.DriveApi.driveScope];
   final firestore = FirebaseFirestore.instance;
   final firebaseAuth = FirebaseAuth.instance;
@@ -119,7 +119,7 @@ class GoogleApiClient {
       uploadedFile.id!,
     );
 
-    final uri = Uri(path: uploadedFile.webViewLink);
+    final uri = Uri.parse(uploadedFile.webViewLink!);
 
     return Attachment(
       id: "0",
@@ -177,7 +177,7 @@ class GoogleApiClient {
 
     final folder = drive.File()..name = newName;
 
-    await _driveApi.files.update(folder, id, $fields: "files(id, name)");
+    await _driveApi.files.update(folder, id, $fields: "name");
   }
 
   Future<String> _getFolderID(String name) async {

@@ -53,22 +53,17 @@ class AuthRoute extends StatelessWidget {
               builder: (context) {
                 return AlertDialog(
                   title: Text("AssignMate Admin"),
-                  content: Column(
-                    children: [
-                      Icon(Icons.check).padSymmetric(horizontal: 16),
-                      SizedBox(width: 16.0),
-                      Text(
-                        "Sign in successful.\nWelcome ${state.name}",
-                      ).padSymmetric(horizontal: 16),
-
-                      ElevatedButton(
-                        onPressed: () {
-                          context.push("/");
-                        },
-                        child: Text("Ok"),
-                      ),
-                    ],
+                  content: Text(
+                    "Sign in successful.\nWelcome ${state.name}",
                   ),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        context.push("/");
+                      },
+                      child: Text("Ok"),
+                    )
+                  ],
                 );
               },
             );

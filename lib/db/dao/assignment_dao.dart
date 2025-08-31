@@ -21,6 +21,6 @@ abstract class AssignmentDao {
   @update
   Future<void> updateAssignment(AssignmentEntity assignment);
 
-  @delete
-  Future<void> deleteAssignment(AssignmentEntity assignment);
+  @Query("DELETE FROM AssignmentEntity WHERE id = :id")
+  Future<void> deleteById(String id);
 }
