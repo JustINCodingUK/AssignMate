@@ -36,7 +36,7 @@ jobs:
       - name: Generate private files
         run: |
           echo "${{ secrets.FILE_FLUTTER_JSON }}" > firebase.json
-          echo "${{ secrets.FILE_FIREBASE_OPTIONS_DART }}" > lib/firebase_options.dart
+          echo "${{ secrets.FILE_FLUTTER_OPTIONS_DART }}" > lib/firebase_options.dart
           echo "${{ secrets.FILE_GOOGLE_SERVICES_JSON }}" > android/app/google-services.json
 
       # Write key.properties (also from secrets)
