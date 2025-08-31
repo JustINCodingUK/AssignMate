@@ -21,7 +21,7 @@ val keyProperties = Properties().apply {
 }
 
 android {
-    namespace = "io.github.justincodinguk.assignmate"
+    namespace = "dev.justincodinguk.assignmate"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
     compileOptions {
@@ -36,7 +36,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "io.github.justincodinguk.assignmate"
+        applicationId = "dev.justincodinguk.assignmate"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
@@ -59,18 +59,13 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
-            if(isRelease) {
+            if (isRelease) {
                 signingConfig = signingConfigs.getByName("release")
             }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-        }
-
-        getByName("debug") {
-            // Debug stays unsigned or with debug key
-            isDebuggable = true
         }
     }
 }

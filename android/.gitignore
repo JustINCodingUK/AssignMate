@@ -1,6 +1,7 @@
 gradle-wrapper.jar
 /.gradle
 /captures/
+<<<<<<< HEAD
 /local.properties
 GeneratedPluginRegistrant.java
 .cxx/
@@ -11,3 +12,16 @@ app/key.properties
 **/*.keystore
 **/*.jks
 /build/reports/problems/problems-report.html
+=======
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
+>>>>>>> 7b3fb90 (Push local files to github)

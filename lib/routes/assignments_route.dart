@@ -46,7 +46,9 @@ class AssignmentsRoute extends StatelessWidget {
                       IconButton(
                         onPressed: () {
                           context.push("/reminders");
-                          context.read<AssignmentsBloc>().add(GetAssignmentsEvent());
+                          context.read<AssignmentsBloc>().add(
+                            GetAssignmentsEvent(),
+                          );
                         },
                         icon: ReminderIcon(isUnread: state.areRemindersUnread),
                       ),
@@ -155,8 +157,8 @@ class AssignmentsRoute extends StatelessWidget {
           } else {
             child = ListView.builder(
               itemCount: state.assignments.length,
-              shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
               itemBuilder: (context, index) {
                 return AssignmentCard(
                   state.assignments[index],
@@ -188,36 +190,34 @@ class AssignmentsRoute extends StatelessWidget {
           }
         }
 
-        return Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                TimedGreeting(),
-                Divider(thickness: 2).padSymmetric(horizontal: 8),
-                DefaultTabController(
-                  length: 2,
-                  child: Column(
-                    children: [
-                      TabBar(
-                        tabs: [
-                          Tab(text: "Pending"),
-                          Tab(text: "Completed"),
-                        ],
-                        onTap: (idx) {
-                          context.read<AssignmentsBloc>().add(
-                            SwitchModeEvent(idx == 0),
-                          );
-                        },
-                      ),
-                      SizedBox(height: 32),
-                      child,
-                    ],
-                  ),
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 25),
+              TimedGreeting(),
+              Divider(thickness: 2).padSymmetric(horizontal: 8),
+              DefaultTabController(
+                length: 2,
+                child: Column(
+                  children: [
+                    TabBar(
+                      tabs: [
+                        Tab(text: "Pending"),
+                        Tab(text: "Completed"),
+                      ],
+                      onTap: (idx) {
+                        context.read<AssignmentsBloc>().add(
+                          SwitchModeEvent(idx == 0),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 32),
+                    child,
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
