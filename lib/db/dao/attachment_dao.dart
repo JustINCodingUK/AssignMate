@@ -10,6 +10,9 @@ abstract class AttachmentDao {
   @Query("SELECT * FROM AttachmentEntity WHERE assignmentId = :assignmentId")
   Future<List<AttachmentEntity>> findAttachmentsByAssignmentId(String assignmentId);
 
+  @Query("DELETE FROM AttachmentEntity WHERE assignmentId = :id")
+  Future<void> deleteByAssignmentId(String id);
+  
   @insert
   Future<void> insertAttachment(AttachmentEntity attachment);
 

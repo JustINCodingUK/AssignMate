@@ -1,3 +1,5 @@
+import 'package:assignmate/model/assignment.dart';
+
 abstract interface class AssignmentDetailsEvent {}
 
 class GetAssignmentEvent implements AssignmentDetailsEvent {

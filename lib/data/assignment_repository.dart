@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:developer';
 
 import 'package:assignmate/data/attachment_repository.dart';
 import 'package:assignmate/db/database.dart';
 import 'package:assignmate/db/entity/assignment_entity.dart';
+import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/ext/model_to_entity.dart';
 import 'package:assignmate/model/assignment.dart';
 import 'package:assignmate/model/attachment.dart';
@@ -123,16 +125,20 @@ class AssignmentsRepository {
     await db.assignmentDao.updateAssignment(newAssignment.toEntity());
   }
 
-  Future<void> deleteAssignment(String id) async {
-    final assignment = await _firestoreClient.getDocument(id);
+  Future<void> deleteAssignment(Assignment assignment) async {
     for (Attachment attachment in assignment.attachments) {
       _attachmentRepository.deleteAttachment(
         attachment.id,
         attachment.driveFileId,
       );
-      _firestoreClient.deleteDocument(attachment.id);
+      await _firestoreClient.deleteDocument(attachment.id);
     }
-    _firestoreClient.deleteDocument(id);
+    await _firestoreClient.deleteDocument(assignment.id);
+  }
+
+  Future<void> deleteLocalAssignment(String id) async {
+    await db.assignmentDao.deleteById(id);
+    await db.attachmentDao.deleteByAssignmentId(id);
   }
 
   Future<List<Assignment>> getFirestoreAssignments() {
@@ -145,6 +151,7 @@ class AssignmentsRepository {
     final List<Assignment> assignments = [];
     for (AssignmentEntity entity in assignmentEntities) {
       final assignment = await entity.toModel(db.attachmentDao);
+      log(assignment.dueDate.toString()+"KAKAKA");
       assignments.add(assignment);
     }
     return assignments;

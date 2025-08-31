@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:assignmate/ext/attachment_ref.dart';
 import 'package:assignmate/ext/date.dart';
 import 'package:assignmate/model/assignment.dart';
@@ -119,7 +121,7 @@ class FirestoreClient<T extends FirestoreDocument> {
           description: data["description"],
           title: data["title"],
           subject: data["subject"],
-          dueDate: DateTime.now(),
+          dueDate: (data["dueDate"] as String).asDate(),
           attachments: attachments,
         )
         as T;

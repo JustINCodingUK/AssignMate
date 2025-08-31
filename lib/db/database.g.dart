@@ -159,20 +159,6 @@ class _$AssignmentDao extends AssignmentDao {
                   'dueDate': item.dueDate,
                   'isCompleted': item.isCompleted ? 1 : 0
                 },
-            changeListener),
-        _assignmentEntityDeletionAdapter = DeletionAdapter(
-            database,
-            'AssignmentEntity',
-            ['id'],
-            (AssignmentEntity item) => <String, Object?>{
-                  'id': item.id,
-                  'title': item.title,
-                  'subject': item.subject,
-                  'description': item.description,
-                  'recordingId': item.recordingId,
-                  'dueDate': item.dueDate,
-                  'isCompleted': item.isCompleted ? 1 : 0
-                },
             changeListener);
 
   final sqflite.DatabaseExecutor database;
@@ -184,8 +170,6 @@ class _$AssignmentDao extends AssignmentDao {
   final InsertionAdapter<AssignmentEntity> _assignmentEntityInsertionAdapter;
 
   final UpdateAdapter<AssignmentEntity> _assignmentEntityUpdateAdapter;
-
-  final DeletionAdapter<AssignmentEntity> _assignmentEntityDeletionAdapter;
 
   @override
   Future<List<AssignmentEntity>> getAllAssignments() async {
@@ -238,6 +222,13 @@ class _$AssignmentDao extends AssignmentDao {
   }
 
   @override
+  Future<void> deleteById(String id) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM AssignmentEntity WHERE id = ?1',
+        arguments: [id]);
+  }
+
+  @override
   Future<void> insertAssignment(AssignmentEntity assignment) async {
     await _assignmentEntityInsertionAdapter.insert(
         assignment, OnConflictStrategy.abort);
@@ -247,11 +238,6 @@ class _$AssignmentDao extends AssignmentDao {
   Future<void> updateAssignment(AssignmentEntity assignment) async {
     await _assignmentEntityUpdateAdapter.update(
         assignment, OnConflictStrategy.abort);
-  }
-
-  @override
-  Future<void> deleteAssignment(AssignmentEntity assignment) async {
-    await _assignmentEntityDeletionAdapter.delete(assignment);
   }
 }
 
@@ -329,6 +315,13 @@ class _$AttachmentDao extends AttachmentDao {
             filename: row['filename'] as String,
             uri: row['uri'] as String),
         arguments: [assignmentId]);
+  }
+
+  @override
+  Future<void> deleteByAssignmentId(String id) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM AttachmentEntity WHERE assignmentId = ?1',
+        arguments: [id]);
   }
 
   @override
