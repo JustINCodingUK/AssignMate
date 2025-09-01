@@ -9,7 +9,6 @@ import 'package:shared_core/data/attachment_repository.dart';
 import 'package:shared_core/db/database.dart';
 import 'firebase_options.dart';
 import 'nav.dart';
-import 'package:shared_core/network/firestore_client.dart';
 import 'notifications/fcm_notifications.dart';
 import 'package:shared_core/theme/theme.dart';
 import 'package:shared_core/theme/util.dart';
