@@ -20,10 +20,7 @@ void workDispatcher() {
         db,
       );
 
-      final updatedVersion = await assignmentRepository.performSync();
-      if(updatedVersion != null) {
-        await setVersion(updatedVersion);
-      }
+      await assignmentRepository.performSync();
     }
     return Future.value(true);
   });

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:app_mobile/network/google_api_client.dart';
 import 'package:shared_core/bloc/assignments_bloc.dart';
 import 'package:shared_core/bloc/events/assignment_event.dart';
@@ -47,6 +49,8 @@ Future<void> _handlePayload(RemoteMessage message) async {
       case "delete":
         await _deleteAssignment(payload["id"], assignmentRepository);
     }
+
+    await assignmentRepository.updateVersion();
   }
 }
 
@@ -125,7 +129,9 @@ class FCMNotificationManager {
         if (context.mounted) {
           try {
             context.read<AssignmentsBloc>().add(GetAssignmentsEvent());
-          } catch (e) {}
+          } catch (e) {
+            log(e.toString());
+          }
         }
       });
       _isForegroundRegistered = true;

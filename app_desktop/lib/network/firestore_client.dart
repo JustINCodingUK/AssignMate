@@ -105,4 +105,16 @@ class DesktopFirestoreClient<T extends FirestoreDocument>
   Future<void> editDocument(T document) {
     throw UnimplementedError("Unsupported operation for desktop");
   }
+
+  @override
+  Future<String> getVersion() {
+    // TODO: implement getVersion
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateVersion() {
+    // TODO: implement updateVersion
+    throw UnimplementedError();
+  }
 }
