@@ -31,6 +31,7 @@ class AssignmentEditRoute extends StatelessWidget {
       body: BlocConsumer<AssignmentEditBloc, AssignmentEditState>(
         buildWhen: (previous, current) {
           return current is AssignmentEditBaseState ||
+              current is AssignmentEditInitState ||
               current is AssignmentLoadingState;
         },
         listenWhen: (previous, current) {
@@ -97,7 +98,12 @@ class AssignmentEditRoute extends StatelessWidget {
               if (context.mounted) {
                 context.read<AssignmentEditBloc>().add(
                   FileUploadEvent(
-                    files: fileResult.files.map((e) => File(e.path!)).toList(),
+                    files: fileResult.files
+                        .map((e) {
+                          print(e.path!);
+                          return File(e.path!);
+                    })
+                        .toList(),
                   ),
                 );
               }

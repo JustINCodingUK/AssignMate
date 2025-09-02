@@ -18,7 +18,11 @@ class AttachmentRepository {
       ) async {
     final list = <Attachment>[];
     for (File file in files) {
-      final data = await file.readAsBytes();
+      File newFile = file;
+      try {
+        newFile = File(Uri.decodeFull(file.path));
+      } catch(e) {}
+      final data = await newFile.readAsBytes();
       final driveFile = await _driveClient.createFile(
         name: file.name,
         parentFolder: assignmentFolderTitle,

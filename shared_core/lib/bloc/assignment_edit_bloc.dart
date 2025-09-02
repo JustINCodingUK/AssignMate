@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'events/assignment_edit_event.dart';
@@ -11,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class AssignmentEditBloc
     extends Bloc<AssignmentEditEvent, AssignmentEditState> {
   final List<String> subjects;
-  final List<Attachment> _attachments=[];
+  final List<Attachment> _attachments = [];
   int _tempId = 1;
   late final Assignment _oldAssignment;
   Uri? _recording;
@@ -32,11 +33,14 @@ class AssignmentEditBloc
         _recording = attachmentFile.uri;
       }
       _oldAssignment = assignment;
-      for(Attachment attachment in _oldAssignment.attachments) {
-        if(attachment.filename != "audio.m4a") {
-          _attachments.add(attachment);
+      if (_oldAssignment.attachments.isNotEmpty) {
+        for (Attachment attachment in _oldAssignment.attachments) {
+          if (attachment.filename != "audio.m4a") {
+            _attachments.add(attachment);
+          }
         }
       }
+
       emit(
         AssignmentEditInitState(
           oldAssignment: assignment,
@@ -103,7 +107,9 @@ class AssignmentEditBloc
         dueDate: event.dueDate,
         attachments: _attachments,
         isCompleted: _oldAssignment.isCompleted,
-        recording: _attachments.where((it)=>it.filename=="audio.m4a").first
+        recording: _recording == null
+            ? null
+            : _attachments.where((it) => it.filename == "audio.m4a").first,
       );
       emit(AssignmentEditInProgressState());
       await _assignmentsRepository.editAssignment(assignment, _oldAssignment);
