@@ -5,6 +5,7 @@ import 'package:shared_core/bloc/events/assignment_edit_event.dart';
 import 'package:shared_core/bloc/states/assignment_edit_state.dart';
 import 'package:shared_core/ext/date.dart';
 import 'package:shared_core/ext/pad.dart';
+import 'package:shared_core/model/attachment.dart';
 import 'package:shared_core/ui/assignment_creation_form.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -40,80 +41,28 @@ class AssignmentEditRoute extends StatelessWidget {
           if (state is AssignmentLoadingState) {
             return Center(child: CircularProgressIndicator());
           } else {
-            state as AssignmentEditBaseState;
+            if (state is AssignmentEditInitState) {
+              _titleController.text = state.oldAssignment.title;
+              _subjectController.text = state.oldAssignment.subject;
+              _descriptionController.text = state.oldAssignment.description;
+              _dueDateController.text = state.oldAssignment.dueDate.date();
 
-            _titleController.text = state.oldAssignment.title;
-            _subjectController.text = state.oldAssignment.subject;
-            _descriptionController.text = state.oldAssignment.description;
-            _dueDateController.text = state.oldAssignment.dueDate.date();
+              return createBody(
+                context,
+                state.oldAssignment.id,
+                state.recording,
+                state.oldAssignment.attachments,
+              );
+            } else {
+              state as AssignmentEditBaseState;
 
-            return AssignmentCreationForm(
-              isEditMode: true,
-              onSubmit: () {
-                context.read<AssignmentEditBloc>().add(
-                    EditAssignmentEvent(
-                        oldAssignmentId: state.oldAssignment.id,
-                        title: _titleController.text,
-                        subject: _subjectController.text,
-                        description: _descriptionController.text,
-                        dueDate: _dueDateController.text.asDate()
-                    )
-                );
-              },
-              audioRecording: state.recording,
-              titleController: _titleController,
-              dueDateController: _dueDateController,
-              descriptionController: _descriptionController,
-              subjectController: _subjectController,
-
-              attachmentList: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Attachments",
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .titleMedium,
-                      ).pad(16),
-                      createControls(context),
-                    ],
-                  ),
-
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: state.attachments.isEmpty
-                        ? 1
-                        : state.attachments.length,
-                    itemBuilder: (context, index) {
-                      if (state.attachments.isEmpty) {
-                        return SizedBox(
-                          width: double.infinity,
-                          child: Text(
-                            "No Attachments, yet",
-                            textAlign: TextAlign.center,
-                          ),
-                        );
-                      } else {
-                        return AttachmentTile(
-                          onClick: () {},
-                          name: state.attachments[index].filename,
-                          icon: Icon(Icons.delete),
-                          onAction: () =>
-                              context.read<AssignmentEditBloc>().add(
-                                FileDeleteEvent(
-                                    fileId: state.attachments[index].id),
-                              ),
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
-            );
+              return createBody(
+                context,
+                state.oldAssignment.id,
+                state.recording,
+                state.attachments,
+              );
+            }
           }
         },
         listener: (context, state) {
@@ -141,16 +90,14 @@ class AssignmentEditRoute extends StatelessWidget {
       children: [
         IconButton(
           onPressed: () async {
-            final fileResult = await FilePicker.platform
-                .pickFiles(allowMultiple: true);
-            if (fileResult != null &&
-                fileResult.files.isNotEmpty) {
+            final fileResult = await FilePicker.platform.pickFiles(
+              allowMultiple: true,
+            );
+            if (fileResult != null && fileResult.files.isNotEmpty) {
               if (context.mounted) {
                 context.read<AssignmentEditBloc>().add(
                   FileUploadEvent(
-                    files: fileResult.files
-                        .map((e) => File(e.path!))
-                        .toList(),
+                    files: fileResult.files.map((e) => File(e.path!)).toList(),
                   ),
                 );
               }
@@ -161,9 +108,7 @@ class AssignmentEditRoute extends StatelessWidget {
 
         IconButton(
           onPressed: () async {
-            final uri = await AudioRecorderSheet.show(
-              context,
-            );
+            final uri = await AudioRecorderSheet.show(context);
             if (uri != null) {
               if (context.mounted) {
                 context.read<AssignmentEditBloc>().add(
@@ -175,6 +120,74 @@ class AssignmentEditRoute extends StatelessWidget {
           icon: Icon(Icons.mic),
         ),
       ],
+    );
+  }
+
+  Widget createBody(
+    BuildContext context,
+    String assignmentId,
+    Uri? recording,
+    List<Attachment> attachments,
+  ) {
+    return AssignmentCreationForm(
+      isEditMode: true,
+      onSubmit: () {
+        context.read<AssignmentEditBloc>().add(
+          EditAssignmentEvent(
+            oldAssignmentId: assignmentId,
+            title: _titleController.text,
+            subject: _subjectController.text,
+            description: _descriptionController.text,
+            dueDate: _dueDateController.text.asDate(),
+          ),
+        );
+      },
+      audioRecording: recording,
+      titleController: _titleController,
+      dueDateController: _dueDateController,
+      descriptionController: _descriptionController,
+      subjectController: _subjectController,
+
+      attachmentList: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Attachments",
+                style: Theme.of(context).textTheme.titleMedium,
+              ).pad(16),
+              createControls(context),
+            ],
+          ),
+
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: attachments.isEmpty ? 1 : attachments.length,
+            itemBuilder: (context, index) {
+              if (attachments.isEmpty) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    "No Attachments, yet",
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              } else {
+                return AttachmentTile(
+                  onClick: () {},
+                  name: attachments[index].filename,
+                  icon: Icon(Icons.delete),
+                  onAction: () => context.read<AssignmentEditBloc>().add(
+                    FileDeleteEvent(fileId: attachments[index].id),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }

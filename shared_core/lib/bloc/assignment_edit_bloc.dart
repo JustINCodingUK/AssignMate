@@ -38,9 +38,8 @@ class AssignmentEditBloc
         }
       }
       emit(
-        AssignmentEditBaseState(
+        AssignmentEditInitState(
           oldAssignment: assignment,
-          attachments: _attachments,
           recording: _recording,
         ),
       );
