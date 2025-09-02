@@ -23,4 +23,7 @@ abstract class AssignmentDao {
 
   @Query("DELETE FROM AssignmentEntity WHERE id = :id")
   Future<void> deleteById(String id);
+
+  @Query("DELETE FROM AssignmentEntity")
+  Future<void> deleteAll();
 }

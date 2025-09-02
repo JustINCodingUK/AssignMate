@@ -22,4 +22,6 @@ abstract class AttachmentDao {
   @delete
   Future<void> deleteAttachment(AttachmentEntity attachment);
 
+  @Query("DELETE FROM AttachmentEntity")
+  Future<void> deleteAll();
 }

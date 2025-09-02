@@ -9,6 +9,7 @@ import 'package:shared_core/network/firestore_client.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:shared_core/model/reminder.dart';
+import 'package:uuid/uuid.dart';
 
 class MobileFirestoreClient<T extends FirestoreDocument>
     implements FirestoreClient<T> {
@@ -25,6 +26,8 @@ class MobileFirestoreClient<T extends FirestoreDocument>
       collectionName = "reminders";
     }
   }
+
+
 
   @override
   Future<T> createDocument(T document) async {
@@ -48,7 +51,20 @@ class MobileFirestoreClient<T extends FirestoreDocument>
         .collection(collectionName)
         .doc(id)
         .set(docFirestoreStructure);
+    await updateVersion();
     return document;
+  }
+
+  @override
+  Future<void> updateVersion() async {
+    final newUuid = Uuid().v4();
+    await _firestore.collection("version").doc("version").set({"uuid": newUuid});
+  }
+
+  @override
+  Future<String> getVersion() async {
+    final snapshot = await _firestore.collection("version").doc("version").get();
+    return snapshot.data()!["uuid"];
   }
 
   @override
@@ -68,11 +84,13 @@ class MobileFirestoreClient<T extends FirestoreDocument>
         .collection(collectionName)
         .doc(document.id)
         .set(docFirestoreStructure);
+    await updateVersion();
   }
 
   @override
   Future<void> deleteDocument(String id) async {
     await _firestore.collection(collectionName).doc(id).delete();
+    await updateVersion();
   }
 
   @override

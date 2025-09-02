@@ -14,7 +14,7 @@ import 'package:shared_core/network/google_api_client.dart';
 
 class MobileGoogleApiClient implements GoogleApiClient {
   late drive.DriveApi _driveApi;
-  final _scopes = ['email', drive.DriveApi.driveScope];
+  final _scopes = ['email', drive.DriveApi.driveFileScope];
   final firestore = FirebaseFirestore.instance;
   final firebaseAuth = FirebaseAuth.instance;
 
@@ -73,7 +73,6 @@ class MobileGoogleApiClient implements GoogleApiClient {
     _driveApi = drive.DriveApi(driveClient!);
 
     return Success(authResult.user!.email!, authResult.user!.displayName!);
-
   }
 
   @override

@@ -12,4 +12,8 @@ abstract interface class FirestoreClient<T extends FirestoreDocument> {
 
   Future<List<T>> getAllDocuments();
 
+  Future<void> updateVersion();
+
+  Future<String> getVersion();
+
 }

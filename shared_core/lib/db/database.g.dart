@@ -229,6 +229,11 @@ class _$AssignmentDao extends AssignmentDao {
   }
 
   @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM AssignmentEntity');
+  }
+
+  @override
   Future<void> insertAssignment(AssignmentEntity assignment) async {
     await _assignmentEntityInsertionAdapter.insert(
         assignment, OnConflictStrategy.abort);
@@ -322,6 +327,11 @@ class _$AttachmentDao extends AttachmentDao {
     await _queryAdapter.queryNoReturn(
         'DELETE FROM AttachmentEntity WHERE assignmentId = ?1',
         arguments: [id]);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM AttachmentEntity');
   }
 
   @override

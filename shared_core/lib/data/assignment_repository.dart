@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:developer';
 
+import 'package:shared_core/shared_prefs/shared_prefs.dart';
+
 import 'attachment_repository.dart';
 import '../db/database.dart';
 import '../db/entity/assignment_entity.dart';
@@ -46,6 +48,21 @@ class AssignmentsRepository {
       newAssignment,
     );
     return assignmentWithId;
+  }
+
+  Future<String?> performSync() async {
+    final localVersion = await getVersion();
+    final firestoreVersion = await _firestoreClient.getVersion();
+    if (localVersion != firestoreVersion) {
+      final firestoreAssignments = await getFirestoreAssignments();
+      await db.assignmentDao.deleteAll();
+
+      for (Assignment assignment in firestoreAssignments) {
+        await saveAssignment(assignment);
+      }
+      return firestoreVersion;
+    }
+    return null;
   }
 
   Future<void> editAssignment(

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:app_mobile/network/firestore_client.dart';
 import 'package:app_mobile/network/google_api_client.dart';
+import 'package:app_mobile/work/background_sync.dart';
 import 'package:shared_core/bloc/auth_bloc.dart';
 import 'package:shared_core/bloc/events/auth_event.dart';
 import 'package:shared_core/data/assignment_repository.dart';
@@ -29,7 +30,7 @@ void main() async {
 
   await fcmNotificationManager.checkPermission();
   fcmNotificationManager.registerBackgroundCallback();
-
+  registerWorkManager();
   runApp(AssignMateMobileApplication(db: appDb));
 }
 
