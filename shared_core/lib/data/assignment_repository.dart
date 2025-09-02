@@ -211,6 +211,7 @@ class AssignmentsRepository {
       for (Assignment assignment in assignments) {
         await db.assignmentDao.insertAssignment(assignment.toEntity());
       }
+      await updateVersion();
     }
   }
 }
