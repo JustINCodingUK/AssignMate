@@ -1,0 +1,36 @@
+name: shared_core
+description: "Shared code for AssignMate Mobile and Desktop"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_bloc: ^9.1.1
+  path_provider: ^2.1.5
+  http: ^1.5.0
+  record: ^6.1.0
+  audioplayers: ^6.5.0
+  url_launcher: ^6.3.2
+  floor: ^1.5.0
+  sqflite: ^2.4.2
+  mutex: ^3.1.0
+  google_fonts: ^6.3.1
+  file_picker: ^10.3.2
+  shared_preferences: ^2.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  floor_generator: ^1.4.2
+  build_runner: ^2.1.2
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
