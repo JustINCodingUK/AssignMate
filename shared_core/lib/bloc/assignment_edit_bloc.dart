@@ -102,6 +102,8 @@ class AssignmentEditBloc
         description: event.description,
         dueDate: event.dueDate,
         attachments: _attachments,
+        isCompleted: _oldAssignment.isCompleted,
+        recording: _attachments.where((it)=>it.filename=="audio.m4a").first
       );
       emit(AssignmentEditInProgressState());
       await _assignmentsRepository.editAssignment(assignment, _oldAssignment);

@@ -58,13 +58,13 @@ class MobileFirestoreClient<T extends FirestoreDocument>
   @override
   Future<void> updateVersion() async {
     final newUuid = Uuid().v4();
-    await _firestore.collection("version").doc("version").set({"uuid": newUuid});
+    await _firestore.collection("version").doc("version").set({"version": newUuid});
   }
 
   @override
   Future<String> getVersion() async {
     final snapshot = await _firestore.collection("version").doc("version").get();
-    return snapshot.data()!["uuid"];
+    return snapshot.data()!["version"];
   }
 
   @override
