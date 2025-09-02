@@ -145,7 +145,9 @@ class AssignmentsRepository {
   Future<void> updateLocalAssignment(Assignment newAssignment) async {
     await db.assignmentDao.updateAssignment(newAssignment.toEntity());
     await db.attachmentDao.deleteByAssignmentId(newAssignment.id);
-    for(AttachmentEntity attachment in newAssignment.attachments.toEntities(newAssignment.id)) {
+    for (AttachmentEntity attachment in newAssignment.attachments.toEntities(
+      newAssignment.id,
+    )) {
       await db.attachmentDao.insertAttachment(attachment);
     }
   }
@@ -210,6 +212,11 @@ class AssignmentsRepository {
       final assignments = await getFirestoreAssignments();
       for (Assignment assignment in assignments) {
         await db.assignmentDao.insertAssignment(assignment.toEntity());
+        for (AttachmentEntity attachment in assignment.attachments.toEntities(
+          assignment.id,
+        )) {
+          await db.attachmentDao.insertAttachment(attachment);
+        }
       }
       await updateVersion();
     }
