@@ -1,5 +1,6 @@
 import 'package:app_mobile/network/firestore_client.dart';
 import 'package:app_mobile/network/google_api_client.dart';
+import 'package:app_mobile/notifications/local_notifications.dart';
 import 'package:shared_core/data/assignment_repository.dart';
 import 'package:shared_core/data/attachment_repository.dart';
 import 'package:shared_core/db/database.dart';
@@ -20,7 +21,11 @@ void workDispatcher() {
         db,
       );
 
-      await assignmentRepository.performSync();
+      final updates = await assignmentRepository.performSync();
+      if(updates) {
+        final notifManager = await LocalNotificationManager.get();
+        await notifManager.createNotification("New Changes", "Some changes were made while you were offline");
+      }
     }
     return Future.value(true);
   });

@@ -51,7 +51,7 @@ class AssignmentsRepository {
     return assignmentWithId;
   }
 
-  Future<void> performSync() async {
+  Future<bool> performSync() async {
     final localVersion = await getVersion();
     final firestoreVersion = await _firestoreClient.getVersion();
     if (localVersion != firestoreVersion) {
@@ -62,7 +62,9 @@ class AssignmentsRepository {
         await saveAssignment(assignment);
       }
       await updateVersion();
+      return true;
     }
+    return false;
   }
 
   Future<void> updateVersion() async {

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
@@ -5,8 +7,9 @@ import 'package:timezone/timezone.dart';
 class LocalNotificationManager {
   late final FlutterLocalNotificationsPlugin localNotificationsPlugin;
   static LocalNotificationManager? _instance;
+
   static Future<LocalNotificationManager> get() async {
-    if(_instance == null) {
+    if (_instance == null) {
       initializeTimeZones();
       _instance = LocalNotificationManager._();
       _instance!.localNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -20,7 +23,6 @@ class LocalNotificationManager {
   }
 
   LocalNotificationManager._();
-
 
   Future<void> scheduleNotification(
     int id,
@@ -45,6 +47,22 @@ class LocalNotificationManager {
       TZDateTime.now(local).add(time.difference(DateTime.now())),
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+    );
+  }
+
+  Future<void> createNotification(String title, String body) async {
+    final androidDetails = AndroidNotificationDetails(
+      "assignmate_update",
+      "Offline Changes",
+      channelDescription: "Some changes were made while you were offline",
+      importance: Importance.max,
+      priority: Priority.max,
+    );
+    await localNotificationsPlugin.show(
+      Random().nextInt(10000),
+      title,
+      body,
+      NotificationDetails(android: androidDetails),
     );
   }
 
