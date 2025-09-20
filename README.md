@@ -3,10 +3,12 @@
 Simple yet effective assignment management and centralized announcement system.
 Primarily targeted towards college students, AssignMate simplifies assignment management and ensures you don't have tens of assignments waiting for you.
 
+<p align="center">
 <img src=".github/2.png" alt="AssignMate Home" style="width: 200px;">
 <img src=".github/1.png" alt="Create Assignment" style="width: 200px;">
 <img src=".github/3.png" alt="Assignment view" style="width: 200px;">
 <img src=".github/4.png" alt="Reminders" style="width: 200px;">
+</p>
 
 ## Features
 - View completed and pending assignments along with their respective due dates and subjects.
